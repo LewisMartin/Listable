@@ -263,3 +263,5 @@ __pycache__/
 /CollectionMicroservice/Properties/PublishProfiles/listablecollectionapi - Web Deploy.pubxml
 /MVCWebApp/appsettings.Development.json
 /MVCWebApp/wwwroot
+/CollectionMicroservice/appsettings.json
+/CollectionMicroservice/appsettings.Development.json
