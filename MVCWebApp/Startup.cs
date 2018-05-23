@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Rewrite;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -50,6 +51,8 @@ namespace MVCWebApp
             {
                 app.UseExceptionHandler("/Home/Error");
             }
+
+            app.UseRewriter(new RewriteOptions().AddRedirectToHttpsPermanent());
 
             app.UseStaticFiles();
 
