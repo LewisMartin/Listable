@@ -30,6 +30,15 @@
             </div>
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
+                    <li><a>
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            foreach (var identity in User.Identities)
+                            {
+                                @identity.Claims.Where(c => c.Type=="name").FirstOrDefault().Value
+                            }
+                        }
+                    </a></li>
                     <li><a asp-area="" asp-controller="Home" asp-action="Contact">Settings</a></li>
                 </ul>
             </div>
