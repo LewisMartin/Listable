@@ -36,7 +36,6 @@ namespace MVCWebApp
             .AddOpenIdConnect(options => 
             {
                 Configuration.GetSection("AzureAd").Bind(options);
-                //Configuration.Bind("AzureAd", options);
 
                 options.Events = new OpenIdConnectEvents
                 {
