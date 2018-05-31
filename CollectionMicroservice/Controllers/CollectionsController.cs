@@ -56,16 +56,25 @@ namespace Listable.CollectionMicroservice.Controllers
 
         // PUT collections/update/5
         [HttpPut]
-        public string Update(int id, [FromBody]string value)
+        public string Update(string id, [FromBody]string data)
         {
-            return "Updated collection: " + value;
+            var collection = JsonConvert.DeserializeObject<Collection>(data, new IsoDateTimeConverter { DateTimeFormat = "dd/MM/yyyy HH:mm:ss" });
+
+            _collectionStore.UpdateCollection(id, collection);
+
+            return "Updated collection: " + id;
         }
 
         // DELETE collections/delete/5
         [HttpDelete]
-        public string Delete(int id)
+        public string Delete(string id)
         {
-            return "Deleted collection: " + id;
+            var success = _collectionStore.DeleteCollection(id);
+
+            if (success)
+                return "Deleted collection: " + id;
+            else
+                return "Deletion failed";
         }
     }
 }

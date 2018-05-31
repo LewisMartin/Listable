@@ -50,5 +50,31 @@ namespace Listable.CollectionMicroservice.Services
                                             .Where(c => c.Id == id)
                                             .FirstOrDefault();                                    
         }
+
+        public bool UpdateCollection(string id, Collection updatedCollection)
+        {
+            try
+            {
+                _docClient.ReplaceDocumentAsync(UriFactory.CreateDocumentUri("listable", "collections", id), updatedCollection);
+                return true;
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
+        public bool DeleteCollection(string id)
+        {
+            try
+            {
+                _docClient.DeleteDocumentAsync(UriFactory.CreateDocumentUri("listable", "collections", id));
+                return true;
+            }
+            catch
+            {
+                throw;
+            }
+        }
     }
 }
