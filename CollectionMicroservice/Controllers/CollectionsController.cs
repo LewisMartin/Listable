@@ -7,6 +7,8 @@ using CollectionMicroservice.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace CollectionMicroservice.Controllers
 {
@@ -36,36 +38,11 @@ namespace CollectionMicroservice.Controllers
 
         // POST collections/create
         [HttpPost]
-        public async Task<string> Create()
+        public async Task<string> Create([FromBody] string data)
         {
-            var data = new List<Collection>
-            {
-                new Collection()
-                {
-                    Id = "3",
-                    Name = "3rd collection",
-                    Owner = "randomuser",
-                    CollectionItems = new List<CollectionItem>()
-                    {
-                        new CollectionItem() { Name = "Item 1" },
-                    }
-                },
-                new Collection()
-                {
-                    Id = "4",
-                    Name = "final collection",
-                    Owner = "nobody",
-                    CollectionItems = new List<CollectionItem>()
-                    {
-                        new CollectionItem() { Name = "Item 1" },
-                        new CollectionItem() { Name = "Item 2" },
-                        new CollectionItem() { Name = "Item 3" },
-                        new CollectionItem() { Name = "Item 4" }
-                    }
-                }
-            };
+            var collections = JsonConvert.DeserializeObject<List<Collection>>(data, new IsoDateTimeConverter { DateTimeFormat = "dd/MM/yyyy HH:mm:ss" });
 
-            await _collectionStore.InsertCollections(data);
+            await _collectionStore.InsertCollections(collections);
 
             return "Created test collections";
         }
