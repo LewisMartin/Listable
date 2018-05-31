@@ -43,6 +43,16 @@ namespace Listable.CollectionMicroservice.Controllers
             return Json(_collectionStore.GetAllCollections().ToList()); 
         }
 
+        // GET collections/retrieveall
+        [HttpGet]
+        public JsonResult RetrieveItem(string collectionId, int index)
+        {
+            if (collectionId != null)
+                return Json(_collectionStore.GetCollectionItem(collectionId, index));
+
+            return Json("Collection not found");
+        }
+
         // POST collections/create
         [HttpPost]
         public async Task<string> Create([FromBody] Collection collection)

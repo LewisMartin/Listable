@@ -52,6 +52,19 @@ namespace Listable.CollectionMicroservice.Services
                                             .FirstOrDefault();                                    
         }
 
+        public CollectionItem GetCollectionItem(string id, int pos)
+        {
+            var collection = _docClient.CreateDocumentQuery<Collection>(_collectionsLink)
+                                            .Where(c => c.Id == id)
+                                            .AsEnumerable()
+                                            .FirstOrDefault();
+
+            if (pos + 1 < collection.CollectionItems.ToList().Count)
+                return collection.CollectionItems.ToList()[pos];
+            else
+                return null;
+        }
+
         public bool UpdateCollection(string id, Collection updatedCollection)
         {
             try
