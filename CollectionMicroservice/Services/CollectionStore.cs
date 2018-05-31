@@ -1,4 +1,4 @@
-﻿using CollectionMicroservice.Models;
+﻿using CollectionMicroservice.DTO;
 using Microsoft.Azure.Documents.Client;
 using Microsoft.Extensions.Configuration;
 using System;

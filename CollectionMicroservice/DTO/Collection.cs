@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace CollectionMicroservice.Models
+namespace CollectionMicroservice.DTO
 {
     public class Collection
     {
