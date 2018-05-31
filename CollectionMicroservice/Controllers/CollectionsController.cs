@@ -45,21 +45,27 @@ namespace Listable.CollectionMicroservice.Controllers
 
         // POST collections/create
         [HttpPost]
-        public async Task<string> Create([FromBody] string data)
+        public async Task<string> Create([FromBody] Collection collection)
         {
-            var collections = JsonConvert.DeserializeObject<List<Collection>>(data, new IsoDateTimeConverter { DateTimeFormat = "dd/MM/yyyy HH:mm:ss" });
+            try
+            {
+                var collections = new List<Collection>();
+                collections.Add(collection);
 
-            await _collectionStore.InsertCollections(collections);
+                await _collectionStore.InsertCollections(collections);
+            }
+            catch(Exception ex)
+            {
+                return ex.Message;
+            }
 
             return "Created test collections";
         }
 
         // PUT collections/update/5
         [HttpPut]
-        public string Update(string id, [FromBody]string data)
+        public string Update(string id, [FromBody] Collection collection)
         {
-            var collection = JsonConvert.DeserializeObject<Collection>(data, new IsoDateTimeConverter { DateTimeFormat = "dd/MM/yyyy HH:mm:ss" });
-
             _collectionStore.UpdateCollection(id, collection);
 
             return "Updated collection: " + id;

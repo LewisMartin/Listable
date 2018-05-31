@@ -48,6 +48,7 @@ namespace Listable.CollectionMicroservice.Services
         {
             return _docClient.CreateDocumentQuery<Collection>(_collectionsLink)
                                             .Where(c => c.Id == id)
+                                            .AsEnumerable()
                                             .FirstOrDefault();                                    
         }
 
