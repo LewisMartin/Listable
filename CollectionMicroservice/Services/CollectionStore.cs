@@ -1,4 +1,4 @@
-﻿using CollectionMicroservice.DTO;
+﻿using Listable.CollectionMicroservice.DTO;
 using Microsoft.Azure.Documents.Client;
 using Microsoft.Extensions.Configuration;
 using System;
@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace CollectionMicroservice.Services
+namespace Listable.CollectionMicroservice.Services
 {
     public class CollectionStore
     {

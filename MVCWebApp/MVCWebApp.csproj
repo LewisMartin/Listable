@@ -2,6 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
+    <AssemblyName>Listable.MVCWebApp</AssemblyName>
+    <RootNamespace>Listable.MVCWebApp</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
@@ -12,6 +14,10 @@
 
   <ItemGroup>
     <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="2.0.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CollectionMicroservice\CollectionMicroservice.csproj" />
   </ItemGroup>
 
 </Project>

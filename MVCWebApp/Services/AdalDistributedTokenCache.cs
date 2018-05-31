@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace MVCWebApp.Services
+namespace Listable.MVCWebApp.Services
 {
     internal class AdalDistributedTokenCache : TokenCache
     {

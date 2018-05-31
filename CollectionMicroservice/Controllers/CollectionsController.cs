@@ -2,15 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using CollectionMicroservice.DTO;
-using CollectionMicroservice.Services;
+using Listable.CollectionMicroservice.DTO;
+using Listable.CollectionMicroservice.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace CollectionMicroservice.Controllers
+namespace Listable.CollectionMicroservice.Controllers
 {
     [Authorize]
     [Route("api/[controller]/[action]")]
@@ -25,15 +25,22 @@ namespace CollectionMicroservice.Controllers
 
         // GET collections/retrieve
         [HttpGet]
-        public JsonResult Retrieve()
+        public JsonResult Retrieve(string collectionId)
         {
-            return Json(_collectionStore.GetAllCollections().ToList()); 
+            if (collectionId != null)
+                return Json(_collectionStore.GetCollection(collectionId));
+
+            return Json("Collection not found");
         }
 
+        // GET collections/retrieveall
         [HttpGet]
-        public JsonResult RetrieveSpecific()
+        public JsonResult RetrieveAll(string userId)
         {
-            return Json(_collectionStore.GetAllCollectionsForUser("TestUser").ToList());
+            if(userId != null)
+                return Json(_collectionStore.GetAllCollectionsForUser(userId).ToList());
+
+            return Json(_collectionStore.GetAllCollections().ToList()); 
         }
 
         // POST collections/create

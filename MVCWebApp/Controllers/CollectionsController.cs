@@ -3,13 +3,15 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
-using MVCWebApp.Models;
+using Listable.MVCWebApp.Models;
 using Microsoft.Extensions.Configuration;
 using System.Net.Http;
 using Microsoft.Extensions.Caching.Distributed;
-using MVCWebApp.Services;
+using Listable.MVCWebApp.Services;
+using System.Collections.Generic;
+using Listable.CollectionMicroservice.DTO;
 
-namespace MVCWebApp.Controllers
+namespace Listable.MVCWebApp.Controllers
 {
     [Authorize]
     public class CollectionsController : Controller
