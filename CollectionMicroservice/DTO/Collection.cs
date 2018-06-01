@@ -20,8 +20,11 @@ namespace Listable.CollectionMicroservice.DTO
     public class CollectionItem
     {
         public string Name { get; set; }
+        public string Description { get; set; }
+        public string ImageLocation { get; set; }
     }
 
+    /* Custom fields will be implemented later */
     public class CustomField
     {
         public string DisplayName { get; set; }
