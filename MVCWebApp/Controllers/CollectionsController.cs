@@ -13,6 +13,8 @@ using Listable.CollectionMicroservice.DTO;
 using Listable.MVCWebApp.ViewModels.Collections;
 using Newtonsoft.Json;
 using System;
+using System.Linq;
+using System.Text;
 
 namespace Listable.MVCWebApp.Controllers
 {
@@ -45,7 +47,7 @@ namespace Listable.MVCWebApp.Controllers
 
         public async Task<IActionResult> Overview()
         {
-            HttpResponseMessage res = await CollectionsAPIRequest(CollectionsApiMethod.RetrieveAll, "?userId=testuser");
+            HttpResponseMessage res = await CollectionsAPIRequest(CollectionsApiMethod.RetrieveAll, ("?userId=" + GetUserUniqueName()));
             var collections = JsonConvert.DeserializeObject<List<Collection>>(await res.Content.ReadAsStringAsync());
 
             var userCollections = new List<Tuple<string, string>>();
@@ -90,9 +92,25 @@ namespace Listable.MVCWebApp.Controllers
         }
 
         [HttpPost]
-        public IActionResult CreateCollection(CreateCollectionViewModel viewModel)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateCollection(CreateCollectionViewModel viewModel)
         {
-            return View();
+            if (ModelState.IsValid)
+            {
+                Collection collection = new Collection()
+                {
+                    Name = viewModel.Name,
+                    Owner = GetUserUniqueName(),
+                    CollectionItems = new List<CollectionItem>()
+                };
+
+                HttpResponseMessage res = await CollectionsAPIRequest(CollectionsApiMethod.Create, "", JsonConvert.SerializeObject(collection).ToString());
+                return RedirectToAction("Overview");
+            }
+            else
+            {
+                return View();
+            }
         }
 
         [HttpGet]
@@ -102,6 +120,7 @@ namespace Listable.MVCWebApp.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult DeleteCollection(DeleteCollectionViewModel viewModel)
         {
             return View();
@@ -123,6 +142,7 @@ namespace Listable.MVCWebApp.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult CreateItem(CreateItemViewModel viewModel)
         {
             return View();
@@ -135,6 +155,7 @@ namespace Listable.MVCWebApp.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult DeleteItem(DeleteItemViewModel viewModel)
         {
             return View();
@@ -145,10 +166,12 @@ namespace Listable.MVCWebApp.Controllers
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
 
-        private async Task<HttpResponseMessage> CollectionsAPIRequest(CollectionsApiMethod method, string uriParams = "")
+        private async Task<HttpResponseMessage> CollectionsAPIRequest(CollectionsApiMethod method, string uriParams = "", string content = "")
         {
             var req = FormRequestMessage(method, uriParams);
 
+            if(method == CollectionsApiMethod.Create)
+                req.Content = new StringContent(content, Encoding.UTF8, "application/json");
 
             string accessToken = await GetAccessTokenAsync();
             req.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
@@ -191,6 +214,18 @@ namespace Listable.MVCWebApp.Controllers
             var result = await authContext.AcquireTokenSilentAsync(_configuration["AzureAd:Resource"], credential, new UserIdentifier(userId, UserIdentifierType.UniqueId));
 
             return result.AccessToken;
+        }
+
+        private string GetUserUniqueName()
+        {
+            string unique_name = "";
+
+            foreach (var identity in User.Identities)
+            {
+                unique_name = identity.Claims.Where(c => c.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name").FirstOrDefault().Value;
+            }
+
+            return unique_name;
         }
     }
 }
