@@ -10,6 +10,9 @@ using Microsoft.Extensions.Caching.Distributed;
 using Listable.MVCWebApp.Services;
 using System.Collections.Generic;
 using Listable.CollectionMicroservice.DTO;
+using Listable.MVCWebApp.ViewModels.Collections;
+using Newtonsoft.Json;
+using System;
 
 namespace Listable.MVCWebApp.Controllers
 {
@@ -35,26 +38,85 @@ namespace Listable.MVCWebApp.Controllers
             _cache = cache;
         }
 
-        public async Task<IActionResult> Index()
+        public IActionResult Index()
         {
-            HttpResponseMessage res = await CollectionsAPIRequest(CollectionsApiMethod.RetrieveAll);
+            return RedirectToAction("Overview");
+        }
 
-            ViewBag.CollectionsResponse = await res.Content.ReadAsStringAsync();
+        public async Task<IActionResult> Overview()
+        {
+            HttpResponseMessage res = await CollectionsAPIRequest(CollectionsApiMethod.RetrieveAll, "?userId=testuser");
+            var collections = JsonConvert.DeserializeObject<List<Collection>>(await res.Content.ReadAsStringAsync());
 
+            var userCollections = new List<Tuple<string, string>>();
+            foreach (var collection in collections)
+            {
+                userCollections.Add(new Tuple<string, string>(collection.Id, collection.Name));
+            }
+
+            OverviewViewModel viewModel = new OverviewViewModel()
+            {
+                collections = userCollections
+            };
+
+            return View(viewModel);
+        }
+
+        [HttpGet]
+        public IActionResult Collection(string collectionId)
+        {
             return View();
         }
 
-        public IActionResult Collections()
+        [HttpGet]
+        public IActionResult Create()
         {
             return View();
         }
 
-        public IActionResult Collection()
+        [HttpPost]
+        public IActionResult Create(CreateViewModel viewModel)
         {
             return View();
         }
 
-        public IActionResult CollectionItem()
+        [HttpGet]
+        public IActionResult Delete()
+        {
+            return View();
+        }
+
+        [HttpGet]
+        public IActionResult Delete(DeleteViewModel viewModel)
+        {
+            return View();
+        }
+
+        public IActionResult ViewItem()
+        {
+            return View();
+        }
+
+        [HttpGet]
+        public IActionResult CreateItem()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult CreateItem(CreateItemViewModel viewModel)
+        {
+            return View();
+        }
+
+        [HttpGet]
+        public IActionResult DeleteItem()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult DeleteItem(DeleteItemViewModel viewModel)
         {
             return View();
         }
@@ -64,9 +126,9 @@ namespace Listable.MVCWebApp.Controllers
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
 
-        private async Task<HttpResponseMessage> CollectionsAPIRequest(CollectionsApiMethod method)
+        private async Task<HttpResponseMessage> CollectionsAPIRequest(CollectionsApiMethod method, string uriParams = "")
         {
-            var req = FormRequestMessage(method);
+            var req = FormRequestMessage(method, uriParams);
 
 
             string accessToken = await GetAccessTokenAsync();
@@ -75,20 +137,20 @@ namespace Listable.MVCWebApp.Controllers
             return await Client.SendAsync(req);
         }
 
-        private HttpRequestMessage FormRequestMessage(CollectionsApiMethod method)
+        private HttpRequestMessage FormRequestMessage(CollectionsApiMethod method, string uriParams)
         {
             switch (method)
             {
                 case CollectionsApiMethod.Retrieve:
-                    return new HttpRequestMessage(HttpMethod.Get, (_configuration["CollectionAPI:APIEndpoint"] + "/retrieve"));
+                    return new HttpRequestMessage(HttpMethod.Get, (_configuration["CollectionAPI:APIEndpoint"] + "/retrieve" + uriParams));
                 case CollectionsApiMethod.RetrieveAll:
-                    return new HttpRequestMessage(HttpMethod.Get, (_configuration["CollectionAPI:APIEndpoint"] + "/retrieveall"));
+                    return new HttpRequestMessage(HttpMethod.Get, (_configuration["CollectionAPI:APIEndpoint"] + "/retrieveall" + uriParams));
                 case CollectionsApiMethod.Create:
-                    return new HttpRequestMessage(HttpMethod.Post, (_configuration["CollectionAPI:APIEndpoint"] + "/create"));
+                    return new HttpRequestMessage(HttpMethod.Post, (_configuration["CollectionAPI:APIEndpoint"] + "/create" + uriParams));
                 case CollectionsApiMethod.Update:
-                    return new HttpRequestMessage(HttpMethod.Put, (_configuration["CollectionAPI:APIEndpoint"] + "/update"));
+                    return new HttpRequestMessage(HttpMethod.Put, (_configuration["CollectionAPI:APIEndpoint"] + "/update" + uriParams));
                 case CollectionsApiMethod.Delete:
-                    return new HttpRequestMessage(HttpMethod.Delete, (_configuration["CollectionAPI:APIEndpoint"] + "/delete"));
+                    return new HttpRequestMessage(HttpMethod.Delete, (_configuration["CollectionAPI:APIEndpoint"] + "/delete" + uriParams));
                 default:
                     return new HttpRequestMessage();
             }

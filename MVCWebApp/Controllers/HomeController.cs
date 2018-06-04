@@ -26,7 +26,7 @@ namespace Listable.MVCWebApp.Controllers
 
         public ActionResult Index()
         {
-            return RedirectToAction("Collections", "Index"); ;
+            return RedirectToAction("Index", "Collections"); ;
         }
     }
 }

@@ -1,0 +1,14 @@
+﻿@model Listable.MVCWebApp.ViewModels.Collections.OverviewViewModel
+
+@{
+    ViewData["Title"] = "Overview";
+}
+
+<h2>Collections Overview</h2>
+
+
+@foreach (var collection in Model.collections)
+{
+    <div>ID: @collection.Item1 Name: @collection.Item2</div>
+}
+
