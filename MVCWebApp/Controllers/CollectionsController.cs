@@ -15,6 +15,7 @@ using Newtonsoft.Json;
 using System;
 using System.Linq;
 using System.Text;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Listable.MVCWebApp.Controllers
 {
@@ -114,16 +115,42 @@ namespace Listable.MVCWebApp.Controllers
         }
 
         [HttpGet]
-        public IActionResult DeleteCollection()
+        public async Task<IActionResult> DeleteCollection()
         {
-            return View();
+            // pull this into own method
+            HttpResponseMessage res = await CollectionsAPIRequest(CollectionsApiMethod.RetrieveAll, ("?userId=" + GetUserUniqueName()));
+            var collections = JsonConvert.DeserializeObject<List<Collection>>(await res.Content.ReadAsStringAsync());
+
+            var selectItems = new List<SelectListItem>();
+
+            foreach (var collection in collections)
+            {
+                selectItems.Add(new SelectListItem()
+                {
+                    Value = collection.Id,
+                    Text = collection.Name
+                });
+            }
+
+            DeleteCollectionViewModel viewModel = new DeleteCollectionViewModel()
+            {
+                Collections = selectItems
+            };
+
+            return View(viewModel);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult DeleteCollection(DeleteCollectionViewModel viewModel)
+        public async Task<IActionResult> DeleteCollection(DeleteCollectionViewModel viewModel)
         {
-            return View();
+            if (viewModel.SelectedCollection != null)
+            {
+                HttpResponseMessage res = await CollectionsAPIRequest(CollectionsApiMethod.Delete, ("?id=" + viewModel.SelectedCollection));
+                var success = await res.Content.ReadAsStringAsync();
+            }
+
+            return RedirectToAction("Overview");
         }
 
         [HttpGet]
