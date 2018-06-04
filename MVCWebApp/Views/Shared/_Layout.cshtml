@@ -30,27 +30,28 @@
             </div>
             <div class="navbar-collapse collapse listable-nav-collapse">
                 <ul class="nav navbar-nav">
-                    <li><a>
-                        @if (User.Identity.IsAuthenticated)
-                        {
-                            foreach (var identity in User.Identities)
+                    <li>
+                        <a>
+                            @if (User.Identity.IsAuthenticated)
                             {
-                                @identity.Claims.Where(c => c.Type=="name").FirstOrDefault().Value
+                                foreach (var identity in User.Identities)
+                                {
+                                    @identity.Claims.Where(c => c.Type == "name").FirstOrDefault().Value
+                                }
                             }
-                        }
-                    </a></li>
+                        </a>
+                    </li>
                     <li><a asp-area="" asp-controller="Home" asp-action="Contact">Settings</a></li>
                 </ul>
             </div>
         </div>
     </nav>
-    <div class="container body-content">
+    <div class="body-content">
         @RenderBody()
-        <hr />
-        <footer>
-            <p>&copy; 2018 - Listable</p>
-        </footer>
     </div>
+    <footer class="listable-footer">
+        &copy; 2018 - Listable
+    </footer>
 
     <environment include="Development">
         <script src="~/lib/jquery/dist/jquery.js"></script>

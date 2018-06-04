@@ -63,43 +63,62 @@ namespace Listable.MVCWebApp.Controllers
         }
 
         [HttpGet]
-        public IActionResult Collection(string collectionId)
+        public async Task<IActionResult> Collection(string collectionId)
         {
-            return View();
+            HttpResponseMessage res = await CollectionsAPIRequest(CollectionsApiMethod.Retrieve, ("?collectionId=" + collectionId));
+            var collection = JsonConvert.DeserializeObject<Collection>(await res.Content.ReadAsStringAsync());
+
+            var collectionItemNames = new List<Tuple<string, string>>();
+            foreach (var item in collection.CollectionItems)
+            {
+                collectionItemNames.Add(new Tuple<string, string>(item.Id, item.Name));
+            }
+
+            CollectionViewModel viewModel = new CollectionViewModel()
+            {
+                CollectionName = collection.Name,
+                CollectionItems = collectionItemNames
+            };
+
+            return View(viewModel);
         }
 
         [HttpGet]
-        public IActionResult Create()
+        public IActionResult CreateCollection()
         {
             return View();
         }
 
         [HttpPost]
-        public IActionResult Create(CreateViewModel viewModel)
+        public IActionResult CreateCollection(CreateCollectionViewModel viewModel)
         {
             return View();
         }
 
         [HttpGet]
-        public IActionResult Delete()
+        public IActionResult DeleteCollection()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult DeleteCollection(DeleteCollectionViewModel viewModel)
         {
             return View();
         }
 
         [HttpGet]
-        public IActionResult Delete(DeleteViewModel viewModel)
-        {
-            return View();
-        }
-
-        public IActionResult ViewItem()
+        public IActionResult ViewItem(string collectionId, string itemId)
         {
             return View();
         }
 
         [HttpGet]
-        public IActionResult CreateItem()
+        public IActionResult CreateItem(string collectionId)
         {
+            // generate Id for item using:
+            // Guid id = Guid.NewGuid();
+
             return View();
         }
 
@@ -110,7 +129,7 @@ namespace Listable.MVCWebApp.Controllers
         }
 
         [HttpGet]
-        public IActionResult DeleteItem()
+        public IActionResult DeleteItem(string collectionId)
         {
             return View();
         }

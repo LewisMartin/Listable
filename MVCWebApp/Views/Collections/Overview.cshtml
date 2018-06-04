@@ -4,11 +4,21 @@
     ViewData["Title"] = "Overview";
 }
 
-<h2>Collections Overview</h2>
+<div class="listable-collections-container">
+    <div class="listable-collections-overview">
+        <ul>
+            @foreach (var collection in Model.collections)
+            {
+                <a href="@Url.Action("Collection", "Collections", new { collectionId = @collection.Item1 }, null)">
+                    <li>@collection.Item2</li>
+                </a>
+            }
+        </ul>
+    </div>
+    <div class="listable-collections-btns">
+        <a href="@Url.Action("DeleteCollection", "Collections", null, null)"><div class="fl-right"><span><i class="fa fa-trash-alt" aria-hidden="true"></i></span></div></a>
+        <a href="@Url.Action("CreateCollection", "Collections", null, null)"><div class="fl-right bump-right"><span><i class="fa fa-plus" aria-hidden="true"></i></span></div></a>
+    </div>
+</div>
 
-
-@foreach (var collection in Model.collections)
-{
-    <div>ID: @collection.Item1 Name: @collection.Item2</div>
-}
 

@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Listable.MVCWebApp.ViewModels.Collections
 {
-    public class CreateViewModel
+    public class CreateCollectionViewModel
     {
 
     }
