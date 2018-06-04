@@ -52,17 +52,14 @@ namespace Listable.CollectionMicroservice.Services
                                             .FirstOrDefault();                                    
         }
 
-        public CollectionItem GetCollectionItem(string id, int pos)
+        public CollectionItem GetCollectionItem(string collectionId, Guid itemId)
         {
             var collection = _docClient.CreateDocumentQuery<Collection>(_collectionsLink)
-                                            .Where(c => c.Id == id)
+                                            .Where(c => c.Id == collectionId)
                                             .AsEnumerable()
                                             .FirstOrDefault();
 
-            if (pos + 1 < collection.CollectionItems.ToList().Count)
-                return collection.CollectionItems.ToList()[pos];
-            else
-                return null;
+            return collection.CollectionItems.Where(i => i.Id == itemId).AsEnumerable().FirstOrDefault();
         }
 
         public bool UpdateCollection(string id, Collection updatedCollection)

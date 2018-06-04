@@ -71,7 +71,7 @@ namespace Listable.MVCWebApp.Controllers
             var collectionItemNames = new List<Tuple<string, string>>();
             foreach (var item in collection.CollectionItems)
             {
-                collectionItemNames.Add(new Tuple<string, string>(item.Id, item.Name));
+                collectionItemNames.Add(new Tuple<string, string>(item.Id.ToString(), item.Name));
             }
 
             CollectionViewModel viewModel = new CollectionViewModel()

@@ -45,10 +45,10 @@ namespace Listable.CollectionMicroservice.Controllers
 
         // GET collections/retrieveall
         [HttpGet]
-        public JsonResult RetrieveItem(string collectionId, int index)
+        public JsonResult RetrieveItem(string collectionId, string itemId)
         {
             if (collectionId != null)
-                return Json(_collectionStore.GetCollectionItem(collectionId, index));
+                return Json(_collectionStore.GetCollectionItem(collectionId, new Guid(itemId)));
 
             return Json("Collection not found");
         }
