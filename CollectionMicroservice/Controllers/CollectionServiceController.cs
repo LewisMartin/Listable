@@ -106,5 +106,30 @@ namespace Listable.CollectionMicroservice.Controllers
             else
                 return "Error";
         }
+
+        [HttpPost]
+        public string DeleteItem(string collectionId, [FromBody] List<string> itemIds)
+        {
+            if (itemIds != null && collectionId != null)
+            {
+                var collection = _collectionStore.GetCollection(collectionId);
+
+                foreach (var id in itemIds)
+                {
+                    collection.CollectionItems.RemoveAll(i => i.Id.ToString() == id);
+                }
+
+                var success = _collectionStore.UpdateCollection(collectionId, collection);
+
+                if (success)
+                    return "Deleted item from collection";
+                else
+                    return "Error";
+            }
+            else
+            {
+                return "Parameters not supplied";
+            }
+        }
     }
 }

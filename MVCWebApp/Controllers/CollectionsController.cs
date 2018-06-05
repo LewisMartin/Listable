@@ -217,16 +217,50 @@ namespace Listable.MVCWebApp.Controllers
         }
 
         [HttpGet]
-        public IActionResult DeleteItem(string collectionId)
+        public async Task<IActionResult> DeleteItem(string collectionId)
         {
-            return View();
+            HttpResponseMessage res = await CollectionsAPIRequest(CollectionsApiMethod.Retrieve, ("?collectionId=" + collectionId));
+            var collection = JsonConvert.DeserializeObject<Collection>(await res.Content.ReadAsStringAsync());
+
+            var deleteItemOptions = new List<DeleteItemOption>();
+
+            foreach (var item in collection.CollectionItems)
+            {
+                deleteItemOptions.Add(new DeleteItemOption()
+                {
+                    IsOptionSelected = false,
+                    ItemId = item.Id.ToString(),
+                    ItemName = item.Name
+                });
+            }
+
+            DeleteItemViewModel viewModel = new DeleteItemViewModel()
+            {
+                CollectionId = collection.Id,
+                CollectionName = collection.Name,
+                DeleteItemOptions = deleteItemOptions
+            };
+
+            return View(viewModel);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult DeleteItem(DeleteItemViewModel viewModel)
+        public async Task<IActionResult> DeleteItem(DeleteItemViewModel viewModel)
         {
-            return View();
+            var itemIds = new List<string>();
+            foreach (var item in viewModel.DeleteItemOptions)
+            {
+                if (item.IsOptionSelected)
+                    itemIds.Add(item.ItemId);
+            }
+
+            var content = JsonConvert.SerializeObject(itemIds);
+
+            HttpResponseMessage res = await CollectionsAPIRequest(CollectionsApiMethod.DeleteItem, ("?collectionId=" + viewModel.CollectionId), content);
+            var success = await res.Content.ReadAsStringAsync();
+
+            return RedirectToAction("Collection", new { collectionId = viewModel.CollectionId });
         }
 
         public IActionResult Error()
@@ -238,7 +272,7 @@ namespace Listable.MVCWebApp.Controllers
         {
             var req = FormRequestMessage(method, uriParams);
 
-            if(method == CollectionsApiMethod.Create || method == CollectionsApiMethod.CreateItem)
+            if (method == CollectionsApiMethod.Create || method == CollectionsApiMethod.CreateItem || method == CollectionsApiMethod.DeleteItem)
                 req.Content = new StringContent(content, Encoding.UTF8, "application/json");
 
             string accessToken = await GetAccessTokenAsync();
@@ -263,6 +297,8 @@ namespace Listable.MVCWebApp.Controllers
                     return new HttpRequestMessage(HttpMethod.Put, (_configuration["CollectionAPI:APIEndpoint"] + "/update" + uriParams));
                 case CollectionsApiMethod.Delete:
                     return new HttpRequestMessage(HttpMethod.Delete, (_configuration["CollectionAPI:APIEndpoint"] + "/delete" + uriParams));
+                case CollectionsApiMethod.DeleteItem:
+                    return new HttpRequestMessage(HttpMethod.Post, (_configuration["CollectionAPI:APIEndpoint"] + "/deleteitem" + uriParams));
                 default:
                     return new HttpRequestMessage();
             }

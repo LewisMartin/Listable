@@ -14,7 +14,7 @@ namespace Listable.CollectionMicroservice.DTO
         public string Owner { get; set; }
 
         public string Name { get; set; }
-        public ICollection<CollectionItem> CollectionItems { get; set; }
+        public List<CollectionItem> CollectionItems { get; set; }
     }
 
     public class CollectionItem

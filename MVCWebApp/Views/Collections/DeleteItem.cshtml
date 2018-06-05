@@ -1,7 +1,35 @@
-﻿
+﻿@model Listable.MVCWebApp.ViewModels.Collections.DeleteItemViewModel
+
 @{
     ViewData["Title"] = "Delete Item";
 }
 
-<h2>Delete Item</h2>
+<div class="listable-collections-container">
+    <div class="listable-collections-title">
+        @Model.CollectionName > Delete Item
+    </div>
+    <div class="listable-collections-list">
+        <form method="post" id="deleteitem">
+            <input asp-for="@Model.CollectionId" hidden />
+            @{ var count = 1;
+                @for (int i = 0; i < Model.DeleteItemOptions.Count(); i++)
+                {
+                    <div class="lc-checkbox-item @(count % 2 == 0 ? "alt-li" : "")">
+                        <input asp-for="@Model.DeleteItemOptions[i].IsOptionSelected" type="checkbox" />
+                        <label asp-for="@Model.DeleteItemOptions[i].IsOptionSelected">@count. @Model.DeleteItemOptions[i].ItemName</label>
+                        <input asp-for="@Model.DeleteItemOptions[i].ItemId" hidden />
+                        <input asp-for="@Model.DeleteItemOptions[i].ItemName" hidden />
+                    </div>
+
+                    count = count + 1;
+                }
+            }
+        </form>
+    </div>
+    <div class="listable-collections-btns">
+        <button type="submit" form="deleteitem" class="fl-right"><i class="far fa-trash-alt" aria-hidden="true"></i></button>
+        <a href="@Url.Action("Collection", "Collections", new { collectionId = Model.CollectionId }, null)"><div><span><i class="fa fa-arrow-left" aria-hidden="true"></i></span></div></a>
+    </div>
+    <div asp-validation-summary="All"></div>
+</div>
 
