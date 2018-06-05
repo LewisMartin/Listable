@@ -262,7 +262,10 @@ __pycache__/
 /MVCWebApp/appsettings.json
 /CollectionMicroservice/Properties/PublishProfiles/listablecollectionapi - Web Deploy.pubxml
 /MVCWebApp/appsettings.Development.json
-/MVCWebApp/wwwroot
+/MVCWebApp/wwwroot/images
+/MVCWebApp/wwwroot/js
+/MVCWebApp/wwwroot/lib
+/MVCWebApp/wwwroot/favicon.ico
 /CollectionMicroservice/appsettings.json
 /CollectionMicroservice/appsettings.Development.json
 /MVCWebApp/Properties/PublishProfiles/listablecollections - Web Deploy.pubxml

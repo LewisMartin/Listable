@@ -1,0 +1,314 @@
+﻿* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    padding-top: 50px;
+    padding-bottom: 20px;
+    background-color: #13a89e;
+    color: #ffffff;
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* Internet Explorer/Edge */
+    user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome and Opera */
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+    a:hover {
+        color: inherit;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+ul {
+    list-style: none;
+}
+
+li {
+    color: inherit;
+    text-decoration: none;
+}
+
+.alt-li {
+    background-color: #f7f7f7;
+}
+
+.fl-left {
+    float: left; 
+}
+
+.fl-right {
+    float: right;
+}
+
+.bump-right {
+    margin-right: 12px;
+}
+
+.bump-left {
+    margin-left: 12px;
+}
+
+/* Wrapping element */
+/* Set some basic padding to keep content from hitting the edges */
+.body-content {
+    padding-left: 20px;
+    padding-right: 20px;
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 600px;
+}
+
+/* Carousel */
+.carousel-caption p {
+    font-size: 20px;
+    line-height: 1.4;
+}
+
+/* QR code generator */
+#qrCode {
+    margin: 15px;
+}
+
+/* Hide/rearrange for smaller screens */
+@media screen and (max-width: 767px) {
+    /* Hide captions */
+    .carousel-caption {
+        display: none;
+    }
+}
+
+.align-left 
+{
+    float: left;
+}
+
+/* Override Bootstrap navbar to always display hamburger drop-down */
+.navbar-header {
+    float: none;
+}
+
+.navbar-left, .navbar-right {
+    float: none !important;
+}
+
+.navbar-toggle {
+    display: block;
+}
+
+.navbar-collapse {
+    border-top: 1px solid transparent;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.1);
+}
+
+.navbar-fixed-top {
+    top: 0;
+    border-width: 0 0 1px;
+}
+
+.navbar-collapse.collapse {
+    display: none !important;
+}
+
+.navbar-nav {
+    float: none !important;
+    margin-top: 7.5px;
+}
+
+    .navbar-nav > li {
+        float: none;
+    }
+
+        .navbar-nav > li > a {
+            padding-top: 10px;
+            padding-bottom: 10px;
+        }
+
+.collapse.in {
+    display: block !important;
+}
+
+.validation-summary-errors {
+    background-color: #ffffff;
+    color: #801515;
+    padding:10px;
+    margin-top: 15px;
+}
+    .validation-summary-errors>ul {
+        margin:0px;
+    }
+
+/* Listable specific styles */
+.listable-nav {
+    background-color: #ffffff;
+    border: none !important;
+}
+
+.listable-nav-collapse {
+    border: none !important;
+}
+
+    .listable-nav a {
+        color: #13a89e !important;
+    }
+
+        .listable-nav a:hover {
+            color: #9a9a9a !important;
+        }
+
+    .listable-nav button {
+        border: none !important;
+        background-color: #ffffff !important;
+        color: #13a89e !important;
+    }
+
+        .listable-nav button:hover {
+            border: none !important;
+            background-color: #ffffff !important;
+            color: #9a9a9a !important;
+        }
+
+        .listable-nav button:hover span {
+            background-color: #9a9a9a !important;
+        }
+
+    .listable-nav button span {
+        background-color: #13a89e !important;
+    }
+
+.listable-footer {
+    position: fixed;
+    bottom: 0px;
+    width: 100%;
+    height:30px;
+    line-height: 30px;
+    padding-left: 10px;
+}
+
+.listable-collections-container {
+    margin-top:25px;
+}
+
+.listable-collections-overview {
+    margin-bottom: 15px;
+}
+
+    .listable-collections-overview > ul {
+    }
+
+        .listable-collections-overview > ul > a > li {
+            height: 44px;
+            line-height: 44px;
+            background-color: #ffffff;
+            color: #9a9a9a;
+            margin-bottom: 15px;
+            padding-left:10px;
+            padding-right: 10px;
+        }
+
+        .listable-collections-overview > ul > a > li:hover {
+            color: #13a89e;
+        }
+
+.listable-collections-btns {
+    width:100%;
+}
+
+    .listable-collections-btns div {
+        height: 50px;
+        width: 50px;
+        border-radius: 25px;
+        background-color: #ffffff;
+        color: #9a9a9a;
+        text-align: center;
+        line-height: 50px;
+        font-size: 14px;
+    }
+        .listable-collections-btns div:hover {
+            color: #13a89e;
+        }
+
+    .listable-collections-btns button {
+        height: 50px;
+        width: 50px;
+        border-radius: 25px;
+        background-color: #ffffff;
+        color: #9a9a9a;
+        text-align: center;
+        line-height: 50px;
+        font-size: 14px;
+        border:none;
+    }
+
+        .listable-collections-btns button:hover {
+            color: #13a89e;
+        }
+
+.listable-collections-title {
+    position: relative;
+    width: 100%; 
+    height: 44px;
+    background-color: #ffffff;
+    text-align:center;
+    line-height: 44px;
+    color: #9a9a9a;
+    font-size: 16px;
+}
+
+.lc-title-button {
+    position: absolute;
+    right: 12px;
+    top:0px;
+    height: 44px;
+    line-height:44px;
+}
+
+.listable-collections-list {
+    background-color: #ffffff;
+    margin: 15px 0px;
+}
+
+    .listable-collections-list li {
+        color: #9a9a9a;
+        height: 40px;
+        line-height: 40px;
+        border-bottom: 1px solid #ededed;
+        padding:0px 15px;
+    }
+
+    .listable-collections-list li:hover {
+        color: #13a89e;
+    }
+
+    .listable-collections-list span {
+        color: #ededed;
+    }
+        .listable-collections-list li:hover span {
+            color: #13a89e;
+        }
+
+.listable-collections-form {
+    margin:15px 0px;
+    background-color: #ffffff;
+    color: #9a9a9a;
+    padding:15px;
+}
+
+.listable-collections-form label {  
+    width: 100%;
+    font-weight: normal;
+}
+
+    .listable-collections-form input, .listable-collections-form select {
+        width: 100%;
+        height:28px;
+    }
+
