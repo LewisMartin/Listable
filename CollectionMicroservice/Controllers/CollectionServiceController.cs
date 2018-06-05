@@ -14,11 +14,11 @@ namespace Listable.CollectionMicroservice.Controllers
 {
     [Authorize]
     [Route("api/[controller]/[action]")]
-    public class CollectionsController : Controller
+    public class CollectionServiceController : Controller
     {
         private CollectionStore _collectionStore;
 
-        public CollectionsController(CollectionStore collectionStore)
+        public CollectionServiceController(CollectionStore collectionStore)
         {
             _collectionStore = collectionStore;
         }
@@ -37,10 +37,10 @@ namespace Listable.CollectionMicroservice.Controllers
         [HttpGet]
         public JsonResult RetrieveAll(string userId)
         {
-            if(userId != null)
+            if (userId != null)
                 return Json(_collectionStore.GetAllCollectionsForUser(userId).ToList());
 
-            return Json(_collectionStore.GetAllCollections().ToList()); 
+            return Json(_collectionStore.GetAllCollections().ToList());
         }
 
         // GET collections/retrieveall
@@ -64,7 +64,7 @@ namespace Listable.CollectionMicroservice.Controllers
 
                 await _collectionStore.InsertCollections(collections);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return ex.Message;
             }
@@ -91,6 +91,20 @@ namespace Listable.CollectionMicroservice.Controllers
                 return "Deleted collection: " + id;
             else
                 return "Deletion failed";
+        }
+
+        [HttpPost]
+        public string CreateItem(string collectionId, [FromBody] CollectionItem item)
+        {
+            var collection = _collectionStore.GetCollection(collectionId);
+            collection.CollectionItems.Add(item);
+
+            var success = _collectionStore.UpdateCollection(collectionId, collection);
+
+            if (success)
+                return "Added item to collection";
+            else
+                return "Error";
         }
     }
 }

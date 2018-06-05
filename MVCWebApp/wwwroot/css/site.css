@@ -312,3 +312,14 @@ li {
         height:28px;
     }
 
+.listable-collections-item {
+    background-color: #ffffff;
+    margin: 15px 0px;
+    color: #9a9a9a;
+}
+
+.lc-field {
+    padding: 12px 15px;
+    border-bottom: 1px solid #ededed;
+}
+

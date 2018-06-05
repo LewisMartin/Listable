@@ -24,8 +24,10 @@ namespace Listable.MVCWebApp.Controllers
         Retrieve,
         RetrieveAll,
         Create,
+        CreateItem,
         Update,
-        Delete
+        Delete,
+        DeleteItem
     }
 
     [Authorize]
@@ -79,6 +81,7 @@ namespace Listable.MVCWebApp.Controllers
 
             CollectionViewModel viewModel = new CollectionViewModel()
             {
+                CollectionId = collectionId,
                 CollectionName = collection.Name,
                 CollectionItems = collectionItemNames
             };
@@ -144,35 +147,73 @@ namespace Listable.MVCWebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteCollection(DeleteCollectionViewModel viewModel)
         {
-            if (viewModel.SelectedCollection != null)
+            if (ModelState.IsValid)
             {
                 HttpResponseMessage res = await CollectionsAPIRequest(CollectionsApiMethod.Delete, ("?id=" + viewModel.SelectedCollection));
                 var success = await res.Content.ReadAsStringAsync();
+
+                return RedirectToAction("Overview");
             }
-
-            return RedirectToAction("Overview");
+            else
+            {
+                return View();
+            }
         }
 
         [HttpGet]
-        public IActionResult ViewItem(string collectionId, string itemId)
+        public async Task<IActionResult> ViewItem(string collectionId, string itemId)
         {
-            return View();
+            HttpResponseMessage res = await CollectionsAPIRequest(CollectionsApiMethod.Retrieve, ("?collectionId=" + collectionId));
+            var collection = JsonConvert.DeserializeObject<Collection>(await res.Content.ReadAsStringAsync());
+
+            var item = collection.CollectionItems.Where(i => i.Id == new Guid(itemId)).FirstOrDefault();
+
+            ViewItemViewModel viewModel = new ViewItemViewModel()
+            {
+                CollectionId = collection.Id,
+                CollectionName = collection.Name,
+                Name = item.Name,
+                Description = item.Description
+            };
+
+            return View(viewModel);
         }
 
         [HttpGet]
-        public IActionResult CreateItem(string collectionId)
+        public async Task<IActionResult> CreateItem(string collectionId)
         {
-            // generate Id for item using:
-            // Guid id = Guid.NewGuid();
+            HttpResponseMessage res = await CollectionsAPIRequest(CollectionsApiMethod.Retrieve, ("?collectionId=" + collectionId));
+            var collection = JsonConvert.DeserializeObject<Collection>(await res.Content.ReadAsStringAsync());
 
-            return View();
+            CreateItemViewModel viewModel = new CreateItemViewModel()
+            {
+                CollectionId = collection.Id,
+                CollectionName = collection.Name
+            };
+
+            return View(viewModel);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult CreateItem(CreateItemViewModel viewModel)
+        public async Task<IActionResult> CreateItem(CreateItemViewModel viewModel)
         {
-            return View();
+            if (ModelState.IsValid)
+            {
+                CollectionItem item = new CollectionItem()
+                {
+                    Id = Guid.NewGuid(),
+                    Name = viewModel.Name,
+                    Description = viewModel.Description,
+                };
+
+                HttpResponseMessage res = await CollectionsAPIRequest(CollectionsApiMethod.CreateItem, ("?collectionId=" + viewModel.CollectionId), JsonConvert.SerializeObject(item).ToString());
+                return RedirectToAction("Collection", new { collectionId = viewModel.CollectionId });
+            }
+            else
+            {
+                return View();
+            }
         }
 
         [HttpGet]
@@ -197,7 +238,7 @@ namespace Listable.MVCWebApp.Controllers
         {
             var req = FormRequestMessage(method, uriParams);
 
-            if(method == CollectionsApiMethod.Create)
+            if(method == CollectionsApiMethod.Create || method == CollectionsApiMethod.CreateItem)
                 req.Content = new StringContent(content, Encoding.UTF8, "application/json");
 
             string accessToken = await GetAccessTokenAsync();
@@ -216,6 +257,8 @@ namespace Listable.MVCWebApp.Controllers
                     return new HttpRequestMessage(HttpMethod.Get, (_configuration["CollectionAPI:APIEndpoint"] + "/retrieveall" + uriParams));
                 case CollectionsApiMethod.Create:
                     return new HttpRequestMessage(HttpMethod.Post, (_configuration["CollectionAPI:APIEndpoint"] + "/create" + uriParams));
+                case CollectionsApiMethod.CreateItem:
+                    return new HttpRequestMessage(HttpMethod.Post, (_configuration["CollectionAPI:APIEndpoint"] + "/createitem" + uriParams));
                 case CollectionsApiMethod.Update:
                     return new HttpRequestMessage(HttpMethod.Put, (_configuration["CollectionAPI:APIEndpoint"] + "/update" + uriParams));
                 case CollectionsApiMethod.Delete:
