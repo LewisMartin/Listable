@@ -32,5 +32,11 @@ namespace BlobMicroservice.Controllers
         {
             return "Image recieved";
         }
+
+        [HttpDelete]
+        public String Delete(int id)
+        {
+            return "Deleted image with id:" + id;
+        }
     }
 }

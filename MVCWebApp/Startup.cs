@@ -10,6 +10,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
 namespace Listable.MVCWebApp
 {
@@ -52,10 +53,15 @@ namespace Listable.MVCWebApp
 
                         var authContext = new AuthenticationContext(ctx.Options.Authority, cache);
 
-                        var result = await authContext.AcquireTokenByAuthorizationCodeAsync(
-                            ctx.ProtocolMessage.Code, new Uri(currentUri), credential, ctx.Options.Resource);
+                        var collectionAPIResult = await authContext.AcquireTokenByAuthorizationCodeAsync(
+                            ctx.ProtocolMessage.Code, new Uri(currentUri), credential, Configuration["CollectionAPI:Resource"]);
 
-                        ctx.HandleCodeRedemption(result.AccessToken, result.IdToken);
+                        ctx.HandleCodeRedemption(collectionAPIResult.AccessToken, collectionAPIResult.IdToken);
+
+                        var blobAPIResult = await authContext.AcquireTokenByAuthorizationCodeAsync(
+                            ctx.ProtocolMessage.Code, new Uri(currentUri), credential, Configuration["BlobServiceAPI:Resource"]);
+
+                        ctx.HandleCodeRedemption(blobAPIResult.AccessToken, blobAPIResult.IdToken);
                     }
                 };
                 options.ResponseType = "code id_token";

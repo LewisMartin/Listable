@@ -19,7 +19,13 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Listable.MVCWebApp.Controllers
 {
-    enum CollectionsApiMethod
+    enum ListableAPI
+    {
+        CollectionAPI,
+        BlobAPI
+    }
+
+    enum CollectionsApiAction
     {
         Retrieve,
         RetrieveAll,
@@ -28,6 +34,13 @@ namespace Listable.MVCWebApp.Controllers
         Update,
         Delete,
         DeleteItem
+    }
+
+    enum BlobApiAction
+    {
+        ImageUpload,
+        ImageDelete,
+        ImageRetrieve
     }
 
     [Authorize]
@@ -50,7 +63,7 @@ namespace Listable.MVCWebApp.Controllers
 
         public async Task<IActionResult> Overview()
         {
-            HttpResponseMessage res = await CollectionsAPIRequest(CollectionsApiMethod.RetrieveAll, ("?userId=" + GetUserUniqueName()));
+            HttpResponseMessage res = await CollectionsAPIRequest(CollectionsApiAction.RetrieveAll, ("?userId=" + GetUserUniqueName()));
             var collections = JsonConvert.DeserializeObject<List<Collection>>(await res.Content.ReadAsStringAsync());
 
             var userCollections = new List<Tuple<string, string>>();
@@ -70,7 +83,7 @@ namespace Listable.MVCWebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> Collection(string collectionId)
         {
-            HttpResponseMessage res = await CollectionsAPIRequest(CollectionsApiMethod.Retrieve, ("?collectionId=" + collectionId));
+            HttpResponseMessage res = await CollectionsAPIRequest(CollectionsApiAction.Retrieve, ("?collectionId=" + collectionId));
             var collection = JsonConvert.DeserializeObject<Collection>(await res.Content.ReadAsStringAsync());
 
             var collectionItemNames = new List<Tuple<string, string>>();
@@ -108,7 +121,7 @@ namespace Listable.MVCWebApp.Controllers
                     CollectionItems = new List<CollectionItem>()
                 };
 
-                HttpResponseMessage res = await CollectionsAPIRequest(CollectionsApiMethod.Create, "", JsonConvert.SerializeObject(collection).ToString());
+                HttpResponseMessage res = await CollectionsAPIRequest(CollectionsApiAction.Create, "", JsonConvert.SerializeObject(collection).ToString());
                 return RedirectToAction("Overview");
             }
             else
@@ -121,7 +134,7 @@ namespace Listable.MVCWebApp.Controllers
         public async Task<IActionResult> DeleteCollection()
         {
             // pull this into own method
-            HttpResponseMessage res = await CollectionsAPIRequest(CollectionsApiMethod.RetrieveAll, ("?userId=" + GetUserUniqueName()));
+            HttpResponseMessage res = await CollectionsAPIRequest(CollectionsApiAction.RetrieveAll, ("?userId=" + GetUserUniqueName()));
             var collections = JsonConvert.DeserializeObject<List<Collection>>(await res.Content.ReadAsStringAsync());
 
             var selectItems = new List<SelectListItem>();
@@ -149,7 +162,7 @@ namespace Listable.MVCWebApp.Controllers
         {
             if (ModelState.IsValid)
             {
-                HttpResponseMessage res = await CollectionsAPIRequest(CollectionsApiMethod.Delete, ("?id=" + viewModel.SelectedCollection));
+                HttpResponseMessage res = await CollectionsAPIRequest(CollectionsApiAction.Delete, ("?id=" + viewModel.SelectedCollection));
                 var success = await res.Content.ReadAsStringAsync();
 
                 return RedirectToAction("Overview");
@@ -163,17 +176,22 @@ namespace Listable.MVCWebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> ViewItem(string collectionId, string itemId)
         {
-            HttpResponseMessage res = await CollectionsAPIRequest(CollectionsApiMethod.Retrieve, ("?collectionId=" + collectionId));
+            HttpResponseMessage res = await CollectionsAPIRequest(CollectionsApiAction.Retrieve, ("?collectionId=" + collectionId));
             var collection = JsonConvert.DeserializeObject<Collection>(await res.Content.ReadAsStringAsync());
 
             var item = collection.CollectionItems.Where(i => i.Id == new Guid(itemId)).FirstOrDefault();
+
+            // test connectivity to blobservice API
+            HttpResponseMessage blobRes = await BlobAPIRequest(BlobApiAction.ImageRetrieve, "?id=5");
+            var url = await blobRes.Content.ReadAsStringAsync();
 
             ViewItemViewModel viewModel = new ViewItemViewModel()
             {
                 CollectionId = collection.Id,
                 CollectionName = collection.Name,
                 Name = item.Name,
-                Description = item.Description
+                Description = item.Description,
+                ImageUrl = url
             };
 
             return View(viewModel);
@@ -182,7 +200,7 @@ namespace Listable.MVCWebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> CreateItem(string collectionId)
         {
-            HttpResponseMessage res = await CollectionsAPIRequest(CollectionsApiMethod.Retrieve, ("?collectionId=" + collectionId));
+            HttpResponseMessage res = await CollectionsAPIRequest(CollectionsApiAction.Retrieve, ("?collectionId=" + collectionId));
             var collection = JsonConvert.DeserializeObject<Collection>(await res.Content.ReadAsStringAsync());
 
             CreateItemViewModel viewModel = new CreateItemViewModel()
@@ -207,7 +225,7 @@ namespace Listable.MVCWebApp.Controllers
                     Description = viewModel.Description,
                 };
 
-                HttpResponseMessage res = await CollectionsAPIRequest(CollectionsApiMethod.CreateItem, ("?collectionId=" + viewModel.CollectionId), JsonConvert.SerializeObject(item).ToString());
+                HttpResponseMessage res = await CollectionsAPIRequest(CollectionsApiAction.CreateItem, ("?collectionId=" + viewModel.CollectionId), JsonConvert.SerializeObject(item).ToString());
                 return RedirectToAction("Collection", new { collectionId = viewModel.CollectionId });
             }
             else
@@ -219,7 +237,7 @@ namespace Listable.MVCWebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> DeleteItem(string collectionId)
         {
-            HttpResponseMessage res = await CollectionsAPIRequest(CollectionsApiMethod.Retrieve, ("?collectionId=" + collectionId));
+            HttpResponseMessage res = await CollectionsAPIRequest(CollectionsApiAction.Retrieve, ("?collectionId=" + collectionId));
             var collection = JsonConvert.DeserializeObject<Collection>(await res.Content.ReadAsStringAsync());
 
             var deleteItemOptions = new List<DeleteItemOption>();
@@ -257,7 +275,7 @@ namespace Listable.MVCWebApp.Controllers
 
             var content = JsonConvert.SerializeObject(itemIds);
 
-            HttpResponseMessage res = await CollectionsAPIRequest(CollectionsApiMethod.DeleteItem, ("?collectionId=" + viewModel.CollectionId), content);
+            HttpResponseMessage res = await CollectionsAPIRequest(CollectionsApiAction.DeleteItem, ("?collectionId=" + viewModel.CollectionId), content);
             var success = await res.Content.ReadAsStringAsync();
 
             return RedirectToAction("Collection", new { collectionId = viewModel.CollectionId });
@@ -268,58 +286,105 @@ namespace Listable.MVCWebApp.Controllers
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
 
-        private async Task<HttpResponseMessage> CollectionsAPIRequest(CollectionsApiMethod method, string uriParams = "", string content = "")
+        private async Task<HttpResponseMessage> CollectionsAPIRequest(CollectionsApiAction method, string uriParams = "", string content = "")
         {
-            var req = FormRequestMessage(method, uriParams);
+            var req = FormCollectionsAPIRequestMessage(method, uriParams);
 
-            if (method == CollectionsApiMethod.Create || method == CollectionsApiMethod.CreateItem || method == CollectionsApiMethod.DeleteItem)
+            if (method == CollectionsApiAction.Create || method == CollectionsApiAction.CreateItem || method == CollectionsApiAction.DeleteItem)
                 req.Content = new StringContent(content, Encoding.UTF8, "application/json");
 
-            string accessToken = await GetAccessTokenAsync();
+            string accessToken = await GetAccessTokenAsync(ListableAPI.CollectionAPI);
             req.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
 
             return await Client.SendAsync(req);
         }
 
-        private HttpRequestMessage FormRequestMessage(CollectionsApiMethod method, string uriParams)
+        private HttpRequestMessage FormCollectionsAPIRequestMessage(CollectionsApiAction method, string uriParams)
         {
             switch (method)
             {
-                case CollectionsApiMethod.Retrieve:
+                case CollectionsApiAction.Retrieve:
                     return new HttpRequestMessage(HttpMethod.Get, (_configuration["CollectionAPI:APIEndpoint"] + "/retrieve" + uriParams));
-                case CollectionsApiMethod.RetrieveAll:
+                case CollectionsApiAction.RetrieveAll:
                     return new HttpRequestMessage(HttpMethod.Get, (_configuration["CollectionAPI:APIEndpoint"] + "/retrieveall" + uriParams));
-                case CollectionsApiMethod.Create:
+                case CollectionsApiAction.Create:
                     return new HttpRequestMessage(HttpMethod.Post, (_configuration["CollectionAPI:APIEndpoint"] + "/create" + uriParams));
-                case CollectionsApiMethod.CreateItem:
+                case CollectionsApiAction.CreateItem:
                     return new HttpRequestMessage(HttpMethod.Post, (_configuration["CollectionAPI:APIEndpoint"] + "/createitem" + uriParams));
-                case CollectionsApiMethod.Update:
+                case CollectionsApiAction.Update:
                     return new HttpRequestMessage(HttpMethod.Put, (_configuration["CollectionAPI:APIEndpoint"] + "/update" + uriParams));
-                case CollectionsApiMethod.Delete:
+                case CollectionsApiAction.Delete:
                     return new HttpRequestMessage(HttpMethod.Delete, (_configuration["CollectionAPI:APIEndpoint"] + "/delete" + uriParams));
-                case CollectionsApiMethod.DeleteItem:
+                case CollectionsApiAction.DeleteItem:
                     return new HttpRequestMessage(HttpMethod.Post, (_configuration["CollectionAPI:APIEndpoint"] + "/deleteitem" + uriParams));
                 default:
                     return new HttpRequestMessage();
             }
         }
 
-        private async Task<string> GetAccessTokenAsync()
+        private async Task<HttpResponseMessage> BlobAPIRequest(BlobApiAction action, string uriParams = "", string content = "")
         {
-            string authority = _configuration["AzureAd:Authority"];
+            var req = FormBlobAPIRequestMessage(action, uriParams);
 
-            string userId = User.FindFirst("http://schemas.microsoft.com/identity/claims/objectidentifier").Value;
-            var cache = new AdalDistributedTokenCache(_cache, userId);
+            string accessToken = await GetAccessTokenAsync(ListableAPI.BlobAPI);
+            req.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
 
-            var authContext = new AuthenticationContext(authority, cache);
+            return await Client.SendAsync(req);
+        }
 
-            string clientId = _configuration["AzureAd:ClientId"];
-            string clientSecret = _configuration["AzureAd:ClientSecret"];
-            var credential = new ClientCredential(clientId, clientSecret);
+        private HttpRequestMessage FormBlobAPIRequestMessage(BlobApiAction action, string uriParams)
+        {
+            switch (action)
+            {
+                case BlobApiAction.ImageUpload:
+                    return new HttpRequestMessage(HttpMethod.Get, (_configuration["BlobServiceAPI:APIEndpoint"] + "/upload" + uriParams));
+                case BlobApiAction.ImageRetrieve:
+                    return new HttpRequestMessage(HttpMethod.Get, (_configuration["BlobServiceAPI:APIEndpoint"] + "/retrieve" + uriParams));
+                case BlobApiAction.ImageDelete:
+                    return new HttpRequestMessage(HttpMethod.Get, (_configuration["BlobServiceAPI:APIEndpoint"] + "/delete" + uriParams));
+                default:
+                    return new HttpRequestMessage();
+            }
+        }
 
-            var result = await authContext.AcquireTokenSilentAsync(_configuration["AzureAd:Resource"], credential, new UserIdentifier(userId, UserIdentifierType.UniqueId));
+        private async Task<string> GetAccessTokenAsync(ListableAPI api)
+        {
+            string resource = GetAPIResource(api);
 
-            return result.AccessToken;
+            if (resource != null)
+            {
+                string authority = _configuration["AzureAd:Authority"];
+
+                string userId = User.FindFirst("http://schemas.microsoft.com/identity/claims/objectidentifier").Value;
+                var cache = new AdalDistributedTokenCache(_cache, userId);
+
+                var authContext = new AuthenticationContext(authority, cache);
+
+                string clientId = _configuration["AzureAd:ClientId"];
+                string clientSecret = _configuration["AzureAd:ClientSecret"];
+                var credential = new ClientCredential(clientId, clientSecret);
+
+                var result = await authContext.AcquireTokenSilentAsync(resource, credential, new UserIdentifier(userId, UserIdentifierType.UniqueId));
+
+                return result.AccessToken;
+            }
+            else
+            {
+                throw new NullReferenceException();
+            }
+        }
+
+        private string GetAPIResource(ListableAPI api)
+        {
+            switch (api)
+            {
+                case ListableAPI.CollectionAPI:
+                    return _configuration["CollectionAPI:Resource"];
+                case ListableAPI.BlobAPI:
+                    return _configuration["BlobServiceAPI:Resource"];
+                default:
+                    return null;
+            }
         }
 
         private string GetUserUniqueName()
