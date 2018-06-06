@@ -14,6 +14,9 @@ namespace Listable.CollectionMicroservice.DTO
         public string Owner { get; set; }
 
         public string Name { get; set; }
+
+        public bool ImageEnabled { get; set; }
+
         public List<CollectionItem> CollectionItems { get; set; }
     }
 
@@ -23,7 +26,7 @@ namespace Listable.CollectionMicroservice.DTO
 
         public string Name { get; set; }
         public string Description { get; set; }
-        public string ImageLocation { get; set; }
+        public string ImageId { get; set; }
     }
 
     /* Custom fields will be implemented later */

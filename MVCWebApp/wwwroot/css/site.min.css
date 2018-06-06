@@ -9,6 +9,12 @@ body {
     padding-bottom: 20px;
     background-color: #13a89e;
     color: #ffffff;
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* Internet Explorer/Edge */
+    user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome and Opera */
 }
 
 a {
@@ -129,6 +135,17 @@ li {
     display: block !important;
 }
 
+.validation-summary-errors {
+    background-color: #ffffff;
+    color: #801515;
+    padding: 10px;
+    margin-top: 15px;
+}
+
+    .validation-summary-errors > ul {
+        margin: 0px;
+    }
+
 /* Listable specific styles */
 .listable-nav {
     background-color: #ffffff;
@@ -220,6 +237,22 @@ li {
             color: #13a89e;
         }
 
+    .listable-collections-btns button {
+        height: 50px;
+        width: 50px;
+        border-radius: 25px;
+        background-color: #ffffff;
+        color: #9a9a9a;
+        text-align: center;
+        line-height: 50px;
+        font-size: 14px;
+        border: none;
+    }
+
+        .listable-collections-btns button:hover {
+            color: #13a89e;
+        }
+
 .listable-collections-title {
     position: relative;
     width: 100%;
@@ -262,4 +295,53 @@ li {
 
     .listable-collections-list li:hover span {
         color: #13a89e;
+    }
+
+.listable-collections-form {
+    margin: 15px 0px;
+    background-color: #ffffff;
+    color: #9a9a9a;
+    padding: 15px;
+}
+
+    .listable-collections-form label {
+        width: 100%;
+        font-weight: normal;
+    }
+
+    .listable-collections-form input, .listable-collections-form select {
+        width: 100%;
+        height: 28px;
+    }
+
+.listable-collections-item {
+    background-color: #ffffff;
+    margin: 15px 0px;
+    color: #9a9a9a;
+}
+
+.lc-field {
+    padding: 12px 15px;
+    border-bottom: 1px solid #ededed;
+}
+
+.lc-checkbox-item {
+    color: #9a9a9a;
+    padding: 0px 15px;
+    height: 40px;
+    line-height: 40px;
+    position: relative;
+    border-bottom: 1px solid #ededed;
+}
+
+    .lc-checkbox-item label {
+        font-weight: normal;
+        width: 100%;
+        height: 100%;
+    }
+
+    .lc-checkbox-item input {
+        position: absolute;
+        right: 15px;
+        top: 10px;
     }

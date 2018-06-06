@@ -10,5 +10,7 @@ namespace Listable.MVCWebApp.ViewModels.Collections
     {
         [Required, MaxLength(30)]
         public string Name { get; set; }
+
+        public bool IsImageEnabled { get; set; } = false;
     }
 }

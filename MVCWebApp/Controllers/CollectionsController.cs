@@ -188,7 +188,7 @@ namespace Listable.MVCWebApp.Controllers
             CreateItemViewModel viewModel = new CreateItemViewModel()
             {
                 CollectionId = collection.Id,
-                CollectionName = collection.Name
+                CollectionName = collection.Name,
             };
 
             return View(viewModel);
