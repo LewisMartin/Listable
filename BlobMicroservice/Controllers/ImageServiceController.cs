@@ -21,9 +21,9 @@ namespace BlobMicroservice.Controllers
         }
 
         [HttpGet]
-        public String Index()
+        public String Retrieve(int id)
         {
-            return "Index";
+            return "Url for image id:" + id;
         }
 
         // POST collections/create
