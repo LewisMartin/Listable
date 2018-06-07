@@ -12,8 +12,10 @@
         <form method="post" id="createcollection">
             <label asp-for="Name"></label>
             <input asp-for="Name" />
-            <label asp-for="@Model.IsImageEnabled"></label>
-            <input asp-for="@Model.IsImageEnabled" type="checkbox" />
+            <div class="lc-checkbox-field">
+                <label asp-for="@Model.IsImageEnabled"></label>
+                <input asp-for="@Model.IsImageEnabled" type="checkbox" />
+            </div>
         </form>
     </div>
     <div class="listable-collections-btns">

@@ -19,7 +19,7 @@ namespace Listable.MVCWebApp.ViewModels.Collections
         [Required, MaxLength(30), Display(Name = "Name *")]
         public string Name { get; set; }
 
-        [MaxLength(150)]
+        [MaxLength(300)]
         public string Description { get; set; }
 
         [FileSize(4000000)]

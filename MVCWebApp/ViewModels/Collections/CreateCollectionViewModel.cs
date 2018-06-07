@@ -11,6 +11,7 @@ namespace Listable.MVCWebApp.ViewModels.Collections
         [Required, MaxLength(30)]
         public string Name { get; set; }
 
+        [Display(Name = "Enable image uploads")]
         public bool IsImageEnabled { get; set; } = false;
     }
 }

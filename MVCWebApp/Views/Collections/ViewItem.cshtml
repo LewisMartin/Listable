@@ -18,8 +18,11 @@
         </div>
         @if (Model.ImageEnabled)
         {
-            <div>
-                <img src="@Model.ImageUrl" />
+            <div class="lc-field">
+                <div class="lc-media-title">Media:</div>
+                <div class="lc-img-field">
+                    <img src="@Model.ImageUrl" />
+                </div>
             </div>
         }
     </div>
