@@ -9,12 +9,18 @@
         @Model.CollectionName > New Item
     </div>
     <div class="listable-collections-form">
-        <form method="post" id="createitem">
+        <form method="post" id="createitem" enctype="multipart/form-data">
             <input asp-for="CollectionId" hidden />
+            <input asp-for="CollectionName" hidden />
             <label asp-for="Name"></label>
             <input asp-for="Name" />
             <label asp-for="Description"></label>
             <input asp-for="Description" />
+            @if (Model.ImageEnabled)
+            {
+                <label asp-for="ImageFile"></label>
+                <input asp-for="ImageFile" />
+            }
         </form>
     </div>
     <div class="listable-collections-btns">

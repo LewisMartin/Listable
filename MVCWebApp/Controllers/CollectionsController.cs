@@ -16,6 +16,7 @@ using System;
 using System.Linq;
 using System.Text;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Net.Http.Headers;
 
 namespace Listable.MVCWebApp.Controllers
 {
@@ -40,7 +41,7 @@ namespace Listable.MVCWebApp.Controllers
     {
         ImageUpload,
         ImageDelete,
-        ImageRetrieve
+        ImageRetrieveUrl
     }
 
     [Authorize]
@@ -118,6 +119,7 @@ namespace Listable.MVCWebApp.Controllers
                 {
                     Name = viewModel.Name,
                     Owner = GetUserUniqueName(),
+                    ImageEnabled = viewModel.IsImageEnabled,
                     CollectionItems = new List<CollectionItem>()
                 };
 
@@ -162,7 +164,22 @@ namespace Listable.MVCWebApp.Controllers
         {
             if (ModelState.IsValid)
             {
-                HttpResponseMessage res = await CollectionsAPIRequest(CollectionsApiAction.Delete, ("?id=" + viewModel.SelectedCollection));
+                // first delete any images associated with the collection
+                HttpResponseMessage res = await CollectionsAPIRequest(CollectionsApiAction.Retrieve, ("?collectionId=" + viewModel.SelectedCollection));
+                var collection = JsonConvert.DeserializeObject<Collection>(await res.Content.ReadAsStringAsync());
+
+                if (collection.ImageEnabled)
+                {
+                    foreach (var item in collection.CollectionItems)
+                    {
+                        if(item.ImageId != null && item.ImageId != "")
+                        {
+                            HttpResponseMessage blobRes = await BlobAPIRequest(BlobApiAction.ImageDelete, "?id=" + item.ImageId);
+                        }
+                    }
+                }
+
+                res = await CollectionsAPIRequest(CollectionsApiAction.Delete, ("?id=" + viewModel.SelectedCollection));
                 var success = await res.Content.ReadAsStringAsync();
 
                 return RedirectToAction("Overview");
@@ -181,9 +198,12 @@ namespace Listable.MVCWebApp.Controllers
 
             var item = collection.CollectionItems.Where(i => i.Id == new Guid(itemId)).FirstOrDefault();
 
-            // test connectivity to blobservice API
-            HttpResponseMessage blobRes = await BlobAPIRequest(BlobApiAction.ImageRetrieve, "?id=5");
-            var url = await blobRes.Content.ReadAsStringAsync();
+            var url = "";
+            if (collection.ImageEnabled && item.ImageId != null && item.ImageId != "")
+            {
+                HttpResponseMessage blobRes = await BlobAPIRequest(BlobApiAction.ImageRetrieveUrl, "?id=" + item.ImageId);
+                url = await blobRes.Content.ReadAsStringAsync();
+            }
 
             ViewItemViewModel viewModel = new ViewItemViewModel()
             {
@@ -191,6 +211,7 @@ namespace Listable.MVCWebApp.Controllers
                 CollectionName = collection.Name,
                 Name = item.Name,
                 Description = item.Description,
+                ImageEnabled = collection.ImageEnabled,
                 ImageUrl = url
             };
 
@@ -207,6 +228,7 @@ namespace Listable.MVCWebApp.Controllers
             {
                 CollectionId = collection.Id,
                 CollectionName = collection.Name,
+                ImageEnabled = collection.ImageEnabled
             };
 
             return View(viewModel);
@@ -218,11 +240,38 @@ namespace Listable.MVCWebApp.Controllers
         {
             if (ModelState.IsValid)
             {
+                string imgId = "";
+
+                if (viewModel.ImageFile != null && viewModel.ImageFile.Length > 0)
+                {
+                    var fileName = ContentDispositionHeaderValue.Parse(viewModel.ImageFile.ContentDisposition).FileName;
+
+                    var content = new MultipartFormDataContent
+                    {
+                        {
+                            new StreamContent(viewModel.ImageFile.OpenReadStream())
+                            {
+                                Headers =
+                        {
+                            ContentLength = viewModel.ImageFile.Length,
+                            ContentType = new MediaTypeHeaderValue(viewModel.ImageFile.ContentType)
+                        }
+                            },
+                            "image",
+                            fileName
+                        }
+                    };
+
+                    HttpResponseMessage blobRes = await BlobAPIRequest(BlobApiAction.ImageUpload, "", content);
+                    imgId = await blobRes.Content.ReadAsStringAsync();
+                }
+
                 CollectionItem item = new CollectionItem()
                 {
                     Id = Guid.NewGuid(),
                     Name = viewModel.Name,
                     Description = viewModel.Description,
+                    ImageId = imgId
                 };
 
                 HttpResponseMessage res = await CollectionsAPIRequest(CollectionsApiAction.CreateItem, ("?collectionId=" + viewModel.CollectionId), JsonConvert.SerializeObject(item).ToString());
@@ -230,7 +279,7 @@ namespace Listable.MVCWebApp.Controllers
             }
             else
             {
-                return View();
+                return View(viewModel);
             }
         }
 
@@ -266,16 +315,32 @@ namespace Listable.MVCWebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteItem(DeleteItemViewModel viewModel)
         {
+            HttpResponseMessage res = await CollectionsAPIRequest(CollectionsApiAction.Retrieve, ("?collectionId=" + viewModel.CollectionId));
+            var collection = JsonConvert.DeserializeObject<Collection>(await res.Content.ReadAsStringAsync());
+
             var itemIds = new List<string>();
+            var imageIds = new List<string>();
             foreach (var item in viewModel.DeleteItemOptions)
             {
                 if (item.IsOptionSelected)
+                {
                     itemIds.Add(item.ItemId);
+                    imageIds.Add(collection.CollectionItems.Where(i => i.Id.ToString() == item.ItemId).FirstOrDefault().ImageId);
+                }
             }
 
-            var content = JsonConvert.SerializeObject(itemIds);
+            if (collection.ImageEnabled)
+            {
+                // delete media
+                foreach (var imageId in imageIds)
+                {
+                    HttpResponseMessage blobRes = await BlobAPIRequest(BlobApiAction.ImageDelete, "?id=" + imageId);
+                }
+            }
 
-            HttpResponseMessage res = await CollectionsAPIRequest(CollectionsApiAction.DeleteItem, ("?collectionId=" + viewModel.CollectionId), content);
+            // delete items
+            var content = JsonConvert.SerializeObject(itemIds);
+            res = await CollectionsAPIRequest(CollectionsApiAction.DeleteItem, ("?collectionId=" + viewModel.CollectionId), content);
             var success = await res.Content.ReadAsStringAsync();
 
             return RedirectToAction("Collection", new { collectionId = viewModel.CollectionId });
@@ -286,11 +351,11 @@ namespace Listable.MVCWebApp.Controllers
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
 
-        private async Task<HttpResponseMessage> CollectionsAPIRequest(CollectionsApiAction method, string uriParams = "", string content = "")
+        private async Task<HttpResponseMessage> CollectionsAPIRequest(CollectionsApiAction action, string uriParams = "", string content = "")
         {
-            var req = FormCollectionsAPIRequestMessage(method, uriParams);
+            var req = FormCollectionsAPIRequestMessage(action, uriParams);
 
-            if (method == CollectionsApiAction.Create || method == CollectionsApiAction.CreateItem || method == CollectionsApiAction.DeleteItem)
+            if (action == CollectionsApiAction.Create || action == CollectionsApiAction.CreateItem || action == CollectionsApiAction.DeleteItem)
                 req.Content = new StringContent(content, Encoding.UTF8, "application/json");
 
             string accessToken = await GetAccessTokenAsync(ListableAPI.CollectionAPI);
@@ -322,9 +387,12 @@ namespace Listable.MVCWebApp.Controllers
             }
         }
 
-        private async Task<HttpResponseMessage> BlobAPIRequest(BlobApiAction action, string uriParams = "", string content = "")
+        private async Task<HttpResponseMessage> BlobAPIRequest(BlobApiAction action, string uriParams = "", MultipartFormDataContent blobContent = null)
         {
             var req = FormBlobAPIRequestMessage(action, uriParams);
+
+            if (action == BlobApiAction.ImageUpload && blobContent != null)
+                req.Content = blobContent;
 
             string accessToken = await GetAccessTokenAsync(ListableAPI.BlobAPI);
             req.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
@@ -337,11 +405,11 @@ namespace Listable.MVCWebApp.Controllers
             switch (action)
             {
                 case BlobApiAction.ImageUpload:
-                    return new HttpRequestMessage(HttpMethod.Get, (_configuration["BlobServiceAPI:APIEndpoint"] + "/upload" + uriParams));
-                case BlobApiAction.ImageRetrieve:
-                    return new HttpRequestMessage(HttpMethod.Get, (_configuration["BlobServiceAPI:APIEndpoint"] + "/retrieve" + uriParams));
+                    return new HttpRequestMessage(HttpMethod.Post, (_configuration["BlobServiceAPI:APIEndpoint"] + "/upload" + uriParams));
+                case BlobApiAction.ImageRetrieveUrl:
+                    return new HttpRequestMessage(HttpMethod.Get, (_configuration["BlobServiceAPI:APIEndpoint"] + "/retrieveurl" + uriParams));
                 case BlobApiAction.ImageDelete:
-                    return new HttpRequestMessage(HttpMethod.Get, (_configuration["BlobServiceAPI:APIEndpoint"] + "/delete" + uriParams));
+                    return new HttpRequestMessage(HttpMethod.Delete, (_configuration["BlobServiceAPI:APIEndpoint"] + "/delete" + uriParams));
                 default:
                     return new HttpRequestMessage();
             }

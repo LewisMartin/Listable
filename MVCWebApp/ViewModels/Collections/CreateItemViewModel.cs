@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Listable.MVCWebApp.CustomAttributes;
+using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -12,10 +14,15 @@ namespace Listable.MVCWebApp.ViewModels.Collections
 
         public string CollectionName { get; set; }
 
+        public bool ImageEnabled { get; set; }
+
         [Required, MaxLength(30), Display(Name = "Name *")]
         public string Name { get; set; }
 
         [MaxLength(150)]
         public string Description { get; set; }
+
+        [FileSize(4000000)]
+        public IFormFile ImageFile { get; set; }
     }
 }

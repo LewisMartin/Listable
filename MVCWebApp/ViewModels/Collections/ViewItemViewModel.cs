@@ -11,6 +11,8 @@ namespace Listable.MVCWebApp.ViewModels.Collections
 
         public string CollectionName { get; set; }
 
+        public bool ImageEnabled { get; set; }
+
         public string Id { get; set; }
 
         public string Name { get; set; }

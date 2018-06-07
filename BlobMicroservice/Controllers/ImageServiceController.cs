@@ -20,23 +20,33 @@ namespace BlobMicroservice.Controllers
             _imageStore = imageStore;
         }
 
-        [HttpGet]
-        public String Retrieve(int id)
-        {
-            return "Url for image id:" + id;
-        }
-
-        // POST collections/create
         [HttpPost]
         public async Task<string> Upload(IFormFile image)
         {
-            return "Image recieved";
+            if (image != null)
+            {
+                using (var stream = image.OpenReadStream())
+                {
+                    var imageId = await _imageStore.SaveImage(stream);
+                    return imageId;
+                }
+            }
+            else
+            {
+                return "Image was null";
+            }
+        }
+
+        [HttpGet]
+        public String RetrieveUrl(string id)
+        {
+            return _imageStore.GetUri(id);
         }
 
         [HttpDelete]
-        public String Delete(int id)
+        public async Task<bool> Delete(string id)
         {
-            return "Deleted image with id:" + id;
+            return await _imageStore.DeleteImage(id);
         }
     }
 }

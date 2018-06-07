@@ -16,9 +16,12 @@
         <div class="lc-field">
             @Model.Description
         </div>
-        <div>
-            @Model.ImageUrl
-        </div>
+        @if (Model.ImageEnabled)
+        {
+            <div>
+                <img src="@Model.ImageUrl" />
+            </div>
+        }
     </div>
 
     <div class="listable-collections-btns">
