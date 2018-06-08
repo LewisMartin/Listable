@@ -23,6 +23,7 @@ namespace Listable.MVCWebApp.ViewModels.Collections
         public string Description { get; set; }
 
         [FileSize(4000000)]
+        [FileType("jpg,jpeg,png,gif,bmp")]
         public IFormFile ImageFile { get; set; }
     }
 }
