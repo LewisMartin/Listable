@@ -56,11 +56,13 @@ namespace Listable.MVCWebApp.Controllers
         private static readonly HttpClient Client = new HttpClient();
         private readonly IDistributedCache _cache;
         private readonly IConfiguration _configuration;
+        private readonly ImageManipulation _imageManipulation;
 
-        public CollectionsController(IConfiguration configuration, IDistributedCache cache)
+        public CollectionsController(IConfiguration configuration, IDistributedCache cache, ImageManipulation imageManipulation)
         {
             _configuration = configuration;
             _cache = cache;
+            _imageManipulation = imageManipulation;
         }
 
         public IActionResult Index()
@@ -256,37 +258,8 @@ namespace Listable.MVCWebApp.Controllers
                 {
                     if (viewModel.ImageFile.Length > 100000)
                     {
-                        Image destImg = new Bitmap(100, 100);
-
-                        // resize
-                        using (Image sourceImg = Image.FromStream(viewModel.ImageFile.OpenReadStream()))
-                        {
-                            if (sourceImg != null)
-                            {
-                                int width = 600, height = (sourceImg.Height * 600 / sourceImg.Width);
-
-                                destImg = new Bitmap(width, height);
-
-                                using (var graphics = Graphics.FromImage(destImg))
-                                {
-                                    graphics.CompositingQuality = CompositingQuality.HighSpeed;
-                                    graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
-                                    graphics.CompositingMode = CompositingMode.SourceCopy;
-                                    graphics.DrawImage(
-                                        sourceImg, 
-                                        0, 
-                                        0, 
-                                        width, 
-                                        height);
-                                }
-
-                                Stream resizedImgStream = new MemoryStream();
-                                destImg.Save(resizedImgStream, ImageFormat.Jpeg);
-                                ImageContentType = "image/jpg";
-
-                                viewModel.ImageFile = new FormFile(resizedImgStream, 0, resizedImgStream.Length, "image", fileName);
-                            }
-                        }
+                        viewModel.ImageFile = _imageManipulation.LoadFile(viewModel.ImageFile).Resize(600).Retrieve();
+                        ImageContentType = "image/jpg";
                     }
 
                     var content = new MultipartFormDataContent
