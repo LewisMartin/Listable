@@ -17,6 +17,12 @@ using System.Linq;
 using System.Text;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Net.Http.Headers;
+using System.Drawing;
+using System.Drawing.Drawing2D;
+using System.IO;
+using System.Drawing.Imaging;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Internal;
 
 namespace Listable.MVCWebApp.Controllers
 {
@@ -238,13 +244,50 @@ namespace Listable.MVCWebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateItem(CreateItemViewModel viewModel)
         {
+            string ImageContentType = viewModel.ImageFile.ContentType;
+
             if (ModelState.IsValid)
             {
+                var fileName = ContentDispositionHeaderValue.Parse(viewModel.ImageFile.ContentDisposition).FileName;
+
                 string imgId = "";
 
                 if (viewModel.ImageFile != null && viewModel.ImageFile.Length > 0)
                 {
-                    var fileName = ContentDispositionHeaderValue.Parse(viewModel.ImageFile.ContentDisposition).FileName;
+                    if (viewModel.ImageFile.Length > 100000)
+                    {
+                        Image destImg = new Bitmap(100, 100);
+
+                        // resize
+                        using (Image sourceImg = Image.FromStream(viewModel.ImageFile.OpenReadStream()))
+                        {
+                            if (sourceImg != null)
+                            {
+                                int width = 600, height = (sourceImg.Height * 600 / sourceImg.Width);
+
+                                destImg = new Bitmap(width, height);
+
+                                using (var graphics = Graphics.FromImage(destImg))
+                                {
+                                    graphics.CompositingQuality = CompositingQuality.HighSpeed;
+                                    graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                                    graphics.CompositingMode = CompositingMode.SourceCopy;
+                                    graphics.DrawImage(
+                                        sourceImg, 
+                                        0, 
+                                        0, 
+                                        width, 
+                                        height);
+                                }
+
+                                Stream resizedImgStream = new MemoryStream();
+                                destImg.Save(resizedImgStream, ImageFormat.Jpeg);
+                                ImageContentType = "image/jpg";
+
+                                viewModel.ImageFile = new FormFile(resizedImgStream, 0, resizedImgStream.Length, "image", fileName);
+                            }
+                        }
+                    }
 
                     var content = new MultipartFormDataContent
                     {
@@ -252,10 +295,10 @@ namespace Listable.MVCWebApp.Controllers
                             new StreamContent(viewModel.ImageFile.OpenReadStream())
                             {
                                 Headers =
-                        {
-                            ContentLength = viewModel.ImageFile.Length,
-                            ContentType = new MediaTypeHeaderValue(viewModel.ImageFile.ContentType)
-                        }
+                                {
+                                    ContentLength = viewModel.ImageFile.Length,
+                                    ContentType = new MediaTypeHeaderValue(ImageContentType)
+                                }
                             },
                             "image",
                             fileName
