@@ -1,13 +1,8 @@
-﻿using System.Diagnostics;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Clients.ActiveDirectory;
-using Listable.MVCWebApp.Models;
 using Microsoft.Extensions.Configuration;
 using System.Net.Http;
 using Microsoft.Extensions.Caching.Distributed;
-using Listable.MVCWebApp.Services;
 
 namespace Listable.MVCWebApp.Controllers
 {

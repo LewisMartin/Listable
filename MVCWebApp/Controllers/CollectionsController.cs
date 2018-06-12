@@ -17,12 +17,7 @@ using System.Linq;
 using System.Text;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Net.Http.Headers;
-using System.Drawing;
-using System.Drawing.Drawing2D;
-using System.IO;
-using System.Drawing.Imaging;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Internal;
 
 namespace Listable.MVCWebApp.Controllers
 {
