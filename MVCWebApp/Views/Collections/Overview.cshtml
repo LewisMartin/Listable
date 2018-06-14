@@ -9,8 +9,8 @@
         <ul>
             @foreach (var collection in Model.collections)
             {
-                <a href="@Url.Action("Collection", "Collections", new { collectionId = @collection.Item1 }, null)">
-                    <li>@collection.Item2</li>
+                <a href="@Url.Action("Collection", "Collections", new { collectionId = @collection.CollectionId }, null)">
+                    <li>@collection.CollectionName</li>
                 </a>
             }
         </ul>

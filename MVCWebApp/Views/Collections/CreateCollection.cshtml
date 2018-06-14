@@ -14,7 +14,11 @@
             <input asp-for="Name" />
             <div class="lc-checkbox-field">
                 <label asp-for="@Model.IsImageEnabled"></label>
-                <input asp-for="@Model.IsImageEnabled" type="checkbox" />
+                <input asp-for="@Model.IsImageEnabled" type="checkbox" id="ImageEnabledCheckbox"/>
+            </div>
+            <div class="lc-checkbox-field">
+                <label asp-for="@Model.GridDisplay"></label>
+                <input asp-for="@Model.GridDisplay" type="checkbox" id="GridDisplayCheckbox" disabled/>
             </div>
         </form>
     </div>

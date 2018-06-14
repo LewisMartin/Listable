@@ -9,5 +9,8 @@ namespace Listable.MVCWebApp.ViewModels.Collections
 
         [Display(Name = "Enable image uploads")]
         public bool IsImageEnabled { get; set; } = false;
+
+        [Display(Name = "Grid display")]
+        public bool GridDisplay { get; set; } = false;
     }
 }

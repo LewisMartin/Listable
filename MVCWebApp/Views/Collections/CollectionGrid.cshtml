@@ -1,0 +1,38 @@
+﻿@model Listable.MVCWebApp.ViewModels.Collections.CollectionGridViewModel
+
+@{
+    ViewData["Title"] = "Collection";
+}
+
+<div class="listable-collections-container">
+    <div class="listable-collections-title">
+        @Model.CollectionName
+        <div class="lc-title-button"><i class="fa fa-edit" aria-hidden="true"></i></div>
+    </div>
+    <div>
+        <ul class="listable-collections-grid">
+            @{  var count = 1;
+                foreach (var item in Model.CollectionItems)
+                {
+                    <a href="@Url.Action("ViewItem", "Collections", new { collectionId = Model.CollectionId, itemId = @item.ItemId }, null)">
+                        <li class="lc-grid-item">
+                            <div class="lc-grid-item-title">
+                                @count. @item.ItemName
+                                <span class="fl-right"><i class="fa fa-angle-right" aria-hidden="true"></i></span>
+                            </div>
+                            <div class="lc-grid-item-img" style="background-image:url(@item.ItemThumbUri)"></div>
+                        </li>
+                    </a>
+                    count = count + 1;
+                }
+            }
+        </ul>
+    </div>
+    <div class="listable-collections-btns">
+        <a href="@Url.Action("DeleteItem", "Collections", new { collectionId = Model.CollectionId }, null)"><div class="fl-right"><span><i class="fa fa-trash-alt" aria-hidden="true"></i></span></div></a>
+        <a href="@Url.Action("CreateItem", "Collections", new { collectionId = Model.CollectionId }, null)"><div class="fl-right bump-right"><span><i class="fa fa-plus" aria-hidden="true"></i></span></div></a>
+        <a href="@Url.Action("Overview", "Collections", null, null)"><div><span><i class="fa fa-arrow-left" aria-hidden="true"></i></span></div></a>
+    </div>
+</div>
+
+

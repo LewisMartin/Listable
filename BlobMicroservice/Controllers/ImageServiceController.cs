@@ -6,6 +6,7 @@ using BlobMicroservice.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 
 namespace BlobMicroservice.Controllers
 {
@@ -41,6 +42,14 @@ namespace BlobMicroservice.Controllers
         public String RetrieveUrl(string id)
         {
             return _imageStore.GetUri(id);
+        }
+
+        [HttpGet]
+        public JsonResult RetrieveThumbnailUrls(string[] ids)
+        {
+            Dictionary<string, string> thumbnailIds = _imageStore.MapThumbnailUris(ids);
+
+            return Json(thumbnailIds);
         }
 
         [HttpDelete]

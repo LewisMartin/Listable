@@ -6,6 +6,12 @@ using System.Threading.Tasks;
 
 namespace Listable.CollectionMicroservice.DTO
 {
+    public enum CollectionDisplayFormat
+    {
+        List,
+        Grid
+    }
+
     public class Collection
     {
         [JsonProperty("id")]
@@ -16,6 +22,8 @@ namespace Listable.CollectionMicroservice.DTO
         public string Name { get; set; }
 
         public bool ImageEnabled { get; set; }
+
+        public CollectionDisplayFormat DisplayFormat { get; set; }
 
         public List<CollectionItem> CollectionItems { get; set; }
     }

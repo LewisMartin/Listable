@@ -18,7 +18,7 @@ namespace Listable.MVCWebApp.ViewModels.Collections
         [MaxLength(300)]
         public string Description { get; set; }
 
-        [FileSize(4000000)]
+        [FileSize(8000000)]
         [FileType("jpg,jpeg,png,gif,bmp")]
         public IFormFile ImageFile { get; set; }
     }

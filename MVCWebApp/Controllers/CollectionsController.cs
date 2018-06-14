@@ -18,6 +18,7 @@ using System.Text;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Net.Http.Headers;
 using Microsoft.AspNetCore.Http;
+using System.Text.RegularExpressions;
 
 namespace Listable.MVCWebApp.Controllers
 {
@@ -42,7 +43,8 @@ namespace Listable.MVCWebApp.Controllers
     {
         ImageUpload,
         ImageDelete,
-        ImageRetrieveUrl
+        ImageRetrieveUrl,
+        ImageRetrieveThumbs
     }
 
     [Authorize]
@@ -70,18 +72,16 @@ namespace Listable.MVCWebApp.Controllers
             HttpResponseMessage res = await CollectionsAPIRequest(CollectionsApiAction.RetrieveAll, ("?userId=" + GetUserUniqueName()));
             var collections = JsonConvert.DeserializeObject<List<Collection>>(await res.Content.ReadAsStringAsync());
 
-            var userCollections = new List<Tuple<string, string>>();
+            var userCollections = new List<CollectionOverview>();
             foreach (var collection in collections)
             {
-                userCollections.Add(new Tuple<string, string>(collection.Id, collection.Name));
+                userCollections.Add(new CollectionOverview() { CollectionId = collection.Id, CollectionName = collection.Name });
             }
 
-            OverviewViewModel viewModel = new OverviewViewModel()
+            return View(new OverviewViewModel()
             {
                 collections = userCollections
-            };
-
-            return View(viewModel);
+            });
         }
 
         [HttpGet]
@@ -89,6 +89,9 @@ namespace Listable.MVCWebApp.Controllers
         {
             HttpResponseMessage res = await CollectionsAPIRequest(CollectionsApiAction.Retrieve, ("?collectionId=" + collectionId));
             var collection = JsonConvert.DeserializeObject<Collection>(await res.Content.ReadAsStringAsync());
+
+            if (collection.DisplayFormat == CollectionDisplayFormat.Grid)
+                return RedirectToAction("CollectionGrid", new { Id = collectionId });
 
             var collectionItemNames = new List<Tuple<string, string>>();
             foreach (var item in collection.CollectionItems)
@@ -104,6 +107,45 @@ namespace Listable.MVCWebApp.Controllers
             };
 
             return View(viewModel);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> CollectionGrid(string Id)
+        {
+            HttpResponseMessage res = await CollectionsAPIRequest(CollectionsApiAction.Retrieve, ("?collectionId=" + Id));
+            var collection = JsonConvert.DeserializeObject<Collection>(await res.Content.ReadAsStringAsync());
+
+            string uriParams = "?";
+
+            foreach (var item in collection.CollectionItems)
+            {
+                if (item.ImageId != null && item.ImageId != "")
+                {
+                    if (uriParams != "?")
+                        uriParams += "&";
+
+                    uriParams += ("ids=" + item.ImageId);
+                }
+            }
+
+            res = await BlobAPIRequest(BlobApiAction.ImageRetrieveThumbs, uriParams);
+            var thumbnailMap = JsonConvert.DeserializeObject<Dictionary<string, string>>(await res.Content.ReadAsStringAsync());
+
+            var collectionItems = new List<CollectionGridItem>();
+
+            foreach (var item in collection.CollectionItems)
+            {
+                collectionItems.Add(new CollectionGridItem() {
+                    ItemId = item.Id.ToString(),
+                    ItemName = item.Name,
+                    ItemThumbUri = thumbnailMap.ContainsKey(item.ImageId) ? thumbnailMap[item.ImageId] : "" });
+            }
+
+            return View(new CollectionGridViewModel() {
+                    CollectionId = collection.Id,
+                    CollectionName = collection.Name,
+                    CollectionItems = collectionItems
+            });
         }
 
         [HttpGet]
@@ -123,6 +165,7 @@ namespace Listable.MVCWebApp.Controllers
                     Name = viewModel.Name,
                     Owner = GetUserUniqueName(),
                     ImageEnabled = viewModel.IsImageEnabled,
+                    DisplayFormat = viewModel.IsImageEnabled ? (viewModel.GridDisplay == true ? CollectionDisplayFormat.Grid : CollectionDisplayFormat.List) : CollectionDisplayFormat.List,
                     CollectionItems = new List<CollectionItem>()
                 };
 
@@ -241,16 +284,15 @@ namespace Listable.MVCWebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateItem(CreateItemViewModel viewModel)
         {
-            string ImageContentType = viewModel.ImageFile.ContentType;
-
             if (ModelState.IsValid)
             {
-                var fileName = ContentDispositionHeaderValue.Parse(viewModel.ImageFile.ContentDisposition).FileName;
-
                 string imgId = "";
 
                 if (viewModel.ImageFile != null && viewModel.ImageFile.Length > 0)
                 {
+                    string ImageContentType = viewModel.ImageFile.ContentType;
+                    var fileName = ContentDispositionHeaderValue.Parse(viewModel.ImageFile.ContentDisposition).FileName;
+
                     if (viewModel.ImageFile.Length > 100000)
                     {
                         viewModel.ImageFile = _imageManipulation.LoadFile(viewModel.ImageFile).Resize(600).Retrieve();
@@ -419,6 +461,8 @@ namespace Listable.MVCWebApp.Controllers
                     return new HttpRequestMessage(HttpMethod.Post, (_configuration["BlobServiceAPI:APIEndpoint"] + "/upload" + uriParams));
                 case BlobApiAction.ImageRetrieveUrl:
                     return new HttpRequestMessage(HttpMethod.Get, (_configuration["BlobServiceAPI:APIEndpoint"] + "/retrieveurl" + uriParams));
+                case BlobApiAction.ImageRetrieveThumbs:
+                    return new HttpRequestMessage(HttpMethod.Get, (_configuration["BlobServiceAPI:APIEndpoint"] + "/retrievethumbnailurls" + uriParams));
                 case BlobApiAction.ImageDelete:
                     return new HttpRequestMessage(HttpMethod.Delete, (_configuration["BlobServiceAPI:APIEndpoint"] + "/delete" + uriParams));
                 default:
@@ -475,7 +519,7 @@ namespace Listable.MVCWebApp.Controllers
                 unique_name = identity.Claims.Where(c => c.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name").FirstOrDefault().Value;
             }
 
-            return unique_name;
+            return Regex.Replace(unique_name, "#", "-");
         }
     }
 }
