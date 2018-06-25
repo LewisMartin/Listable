@@ -43,8 +43,7 @@ namespace Listable.MVCWebApp.Controllers
 
         public async Task<IActionResult> Overview()
         {
-            HttpResponseMessage res = await _collectionsService.APIRequest(CollectionsApiAction.RetrieveAll, ("?userId=" + GetUserUniqueName()));
-            var collections = JsonConvert.DeserializeObject<List<Collection>>(await res.Content.ReadAsStringAsync());
+            var collections = await _collectionsService.RetrieveAll("?userId=" + GetUserUniqueName());
 
             var userCollections = new List<CollectionOverview>();
             foreach (var collection in collections)
@@ -61,8 +60,7 @@ namespace Listable.MVCWebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> Collection(string collectionId)
         {
-            HttpResponseMessage res = await _collectionsService.APIRequest(CollectionsApiAction.Retrieve, ("?collectionId=" + collectionId));
-            var collection = JsonConvert.DeserializeObject<Collection>(await res.Content.ReadAsStringAsync());
+            var collection = await _collectionsService.Retrieve("?collectionId=" + collectionId);
 
             if (collection.DisplayFormat == CollectionDisplayFormat.Grid)
                 return RedirectToAction("CollectionGrid", new { Id = collectionId });
@@ -86,8 +84,7 @@ namespace Listable.MVCWebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> CollectionGrid(string Id)
         {
-            HttpResponseMessage res = await _collectionsService.APIRequest(CollectionsApiAction.Retrieve, ("?collectionId=" + Id));
-            var collection = JsonConvert.DeserializeObject<Collection>(await res.Content.ReadAsStringAsync());
+            var collection = await _collectionsService.Retrieve("?collectionId=" + Id);
 
             string uriParams = "?";
 
@@ -102,8 +99,7 @@ namespace Listable.MVCWebApp.Controllers
                 }
             }
 
-            res = await _blobService.APIRequest(BlobApiAction.ImageRetrieveThumbs, uriParams);
-            var thumbnailMap = JsonConvert.DeserializeObject<Dictionary<string, string>>(await res.Content.ReadAsStringAsync());
+            var thumbnailMap = await _blobService.ImageRetrieveThumbs(uriParams);
 
             var collectionItems = new List<CollectionGridItem>();
 
@@ -143,7 +139,7 @@ namespace Listable.MVCWebApp.Controllers
                     CollectionItems = new List<CollectionItem>()
                 };
 
-                HttpResponseMessage res = await _collectionsService.APIRequest(CollectionsApiAction.Create, "", new StringContent(JsonConvert.SerializeObject(collection).ToString(), Encoding.UTF8, "application/json"));
+                _collectionsService.Create(collection);
                 return RedirectToAction("Overview");
             }
             else
@@ -155,9 +151,7 @@ namespace Listable.MVCWebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> DeleteCollection()
         {
-            // pull this into own method
-            HttpResponseMessage res = await _collectionsService.APIRequest(CollectionsApiAction.RetrieveAll, ("?userId=" + GetUserUniqueName()));
-            var collections = JsonConvert.DeserializeObject<List<Collection>>(await res.Content.ReadAsStringAsync());
+            var collections = await _collectionsService.RetrieveAll("?userId=" + GetUserUniqueName());
 
             var selectItems = new List<SelectListItem>();
 
@@ -184,9 +178,7 @@ namespace Listable.MVCWebApp.Controllers
         {
             if (ModelState.IsValid)
             {
-                // first, delete any images associated with the collection
-                HttpResponseMessage res = await _collectionsService.APIRequest(CollectionsApiAction.Retrieve, ("?collectionId=" + viewModel.SelectedCollection));
-                var collection = JsonConvert.DeserializeObject<Collection>(await res.Content.ReadAsStringAsync());
+                var collection = await _collectionsService.Retrieve("?collectionId=" + viewModel.SelectedCollection);
 
                 if (collection.ImageEnabled)
                 {
@@ -194,13 +186,12 @@ namespace Listable.MVCWebApp.Controllers
                     {
                         if(item.ImageId != null && item.ImageId != "")
                         {
-                            HttpResponseMessage blobRes = await _blobService.APIRequest(BlobApiAction.ImageDelete, "?id=" + item.ImageId);
+                            _blobService.ImageDelete("?id=" + item.ImageId);
                         }
                     }
                 }
 
-                res = await _collectionsService.APIRequest(CollectionsApiAction.Delete, ("?id=" + viewModel.SelectedCollection));
-                var success = await res.Content.ReadAsStringAsync();
+                _collectionsService.Delete("?id=" + viewModel.SelectedCollection);
 
                 return RedirectToAction("Overview");
             }
@@ -213,16 +204,14 @@ namespace Listable.MVCWebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> ViewItem(string collectionId, string itemId)
         {
-            HttpResponseMessage res = await _collectionsService.APIRequest(CollectionsApiAction.Retrieve, ("?collectionId=" + collectionId));
-            var collection = JsonConvert.DeserializeObject<Collection>(await res.Content.ReadAsStringAsync());
+            var collection = await _collectionsService.Retrieve("?collectionId=" + collectionId);
 
             var item = collection.CollectionItems.Where(i => i.Id == new Guid(itemId)).FirstOrDefault();
 
             var url = "";
             if (collection.ImageEnabled && item.ImageId != null && item.ImageId != "")
             {
-                HttpResponseMessage blobRes = await _blobService.APIRequest(BlobApiAction.ImageRetrieveUrl, "?id=" + item.ImageId);
-                url = await blobRes.Content.ReadAsStringAsync();
+                url = await _blobService.ImageRetrieveUrl("?id=" + item.ImageId);
             }
 
             ViewItemViewModel viewModel = new ViewItemViewModel()
@@ -241,8 +230,7 @@ namespace Listable.MVCWebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> CreateItem(string collectionId)
         {
-            HttpResponseMessage res = await _collectionsService.APIRequest(CollectionsApiAction.Retrieve, ("?collectionId=" + collectionId));
-            var collection = JsonConvert.DeserializeObject<Collection>(await res.Content.ReadAsStringAsync());
+            var collection = await _collectionsService.Retrieve("?collectionId=" + collectionId);
 
             CreateItemViewModel viewModel = new CreateItemViewModel()
             {
@@ -289,8 +277,7 @@ namespace Listable.MVCWebApp.Controllers
                         }
                     };
 
-                    HttpResponseMessage blobRes = await _blobService.APIRequest(BlobApiAction.ImageUpload, "", content);
-                    imgId = await blobRes.Content.ReadAsStringAsync();
+                    imgId = await _blobService.ImageUpload(content);
                 }
 
                 CollectionItem item = new CollectionItem()
@@ -301,7 +288,7 @@ namespace Listable.MVCWebApp.Controllers
                     ImageId = imgId
                 };
 
-                HttpResponseMessage res = await _collectionsService.APIRequest(CollectionsApiAction.CreateItem, ("?collectionId=" + viewModel.CollectionId), new StringContent(JsonConvert.SerializeObject(item).ToString(), Encoding.UTF8, "application/json"));
+                _collectionsService.CreateItem(viewModel.CollectionId, item);
                 return RedirectToAction("Collection", new { collectionId = viewModel.CollectionId });
             }
             else
@@ -313,8 +300,7 @@ namespace Listable.MVCWebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> DeleteItem(string collectionId)
         {
-            HttpResponseMessage res = await _collectionsService.APIRequest(CollectionsApiAction.Retrieve, ("?collectionId=" + collectionId));
-            var collection = JsonConvert.DeserializeObject<Collection>(await res.Content.ReadAsStringAsync());
+            var collection = await _collectionsService.Retrieve("?collectionId=" + collectionId);
 
             var deleteItemOptions = new List<DeleteItemOption>();
 
@@ -342,8 +328,7 @@ namespace Listable.MVCWebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteItem(DeleteItemViewModel viewModel)
         {
-            HttpResponseMessage res = await _collectionsService.APIRequest(CollectionsApiAction.Retrieve, ("?collectionId=" + viewModel.CollectionId));
-            var collection = JsonConvert.DeserializeObject<Collection>(await res.Content.ReadAsStringAsync());
+            var collection = await _collectionsService.Retrieve("?collectionId=" + viewModel.CollectionId);
 
             var itemIds = new List<string>();
             var imageIds = new List<string>();
@@ -361,14 +346,13 @@ namespace Listable.MVCWebApp.Controllers
                 // delete media
                 foreach (var imageId in imageIds)
                 {
-                    HttpResponseMessage blobRes = await _blobService.APIRequest(BlobApiAction.ImageDelete, "?id=" + imageId);
+                    _blobService.ImageDelete("?id=" + imageId);
                 }
             }
 
             // delete items
             var content = JsonConvert.SerializeObject(itemIds);
-            res = await _collectionsService.APIRequest(CollectionsApiAction.DeleteItem, ("?collectionId=" + viewModel.CollectionId), new StringContent(content, Encoding.UTF8, "application/json"));
-            var success = await res.Content.ReadAsStringAsync();
+             _collectionsService.DeleteItem(viewModel.CollectionId, content);
 
             return RedirectToAction("Collection", new { collectionId = viewModel.CollectionId });
         }

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 
 namespace Listable.MVCWebApp.Services
 {
@@ -23,7 +24,30 @@ namespace Listable.MVCWebApp.Services
         {
         }
 
-        public override async Task<HttpResponseMessage> APIRequest(BlobApiAction action, string uriParams = "", HttpContent content = null)
+        public async Task<string> ImageUpload(MultipartFormDataContent content)
+        {
+            HttpResponseMessage blobRes = await APIRequest(BlobApiAction.ImageUpload, "", content);
+            return await blobRes.Content.ReadAsStringAsync();
+        }
+
+        public async void ImageDelete(string uriParams)
+        {
+            HttpResponseMessage blobRes = await APIRequest(BlobApiAction.ImageDelete, uriParams);
+        }
+
+        public async Task<string> ImageRetrieveUrl(string uriParams)
+        {
+            HttpResponseMessage blobRes = await APIRequest(BlobApiAction.ImageRetrieveUrl, uriParams);
+            return await blobRes.Content.ReadAsStringAsync();
+        }
+
+        public async Task<Dictionary<string, string>> ImageRetrieveThumbs(string uriParams)
+        {
+            HttpResponseMessage res = await APIRequest(BlobApiAction.ImageRetrieveThumbs, uriParams);
+            return JsonConvert.DeserializeObject<Dictionary<string, string>>(await res.Content.ReadAsStringAsync());
+        }
+
+        protected override async Task<HttpResponseMessage> APIRequest(BlobApiAction action, string uriParams = "", HttpContent content = null)
         {
             var req = FormAPIRequestMessage(action, uriParams);
 

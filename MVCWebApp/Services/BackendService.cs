@@ -71,7 +71,7 @@ namespace Listable.MVCWebApp.Services
             }
         }
 
-        public abstract Task<HttpResponseMessage> APIRequest(T action, string uriParams = "", HttpContent content = null);
+        protected abstract Task<HttpResponseMessage> APIRequest(T action, string uriParams = "", HttpContent content = null);
 
         protected abstract HttpRequestMessage FormAPIRequestMessage(T action, string uriParams);
     }

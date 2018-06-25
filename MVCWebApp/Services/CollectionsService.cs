@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Listable.CollectionMicroservice.DTO;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,8 +29,39 @@ namespace Listable.MVCWebApp.Services
         {
         }
 
-        // old: req.Content = new StringContent(content, Encoding.UTF8, "application/json");
-        public override async Task<HttpResponseMessage> APIRequest(CollectionsApiAction action, string uriParams = "", HttpContent content = null)
+        public async Task<Collection> Retrieve(string uriParams)
+        {
+            HttpResponseMessage res = await APIRequest(CollectionsApiAction.Retrieve, uriParams);
+            return JsonConvert.DeserializeObject<Collection>(await res.Content.ReadAsStringAsync());
+        }
+
+        public async Task<List<Collection>> RetrieveAll(string uriParams)
+        {
+            HttpResponseMessage res = await APIRequest(CollectionsApiAction.RetrieveAll, uriParams);
+            return JsonConvert.DeserializeObject<List<Collection>>(await res.Content.ReadAsStringAsync());
+        }
+
+        public async void Create(Collection collection)
+        {
+            HttpResponseMessage res = await APIRequest(CollectionsApiAction.Create, "", new StringContent(JsonConvert.SerializeObject(collection).ToString(), Encoding.UTF8, "application/json"));
+        }
+
+        public async void Delete(string uriParams)
+        {
+            HttpResponseMessage res = await APIRequest(CollectionsApiAction.Delete, uriParams);
+        }
+
+        public async void CreateItem(string collectionId, CollectionItem item)
+        {
+            HttpResponseMessage res = await APIRequest(CollectionsApiAction.CreateItem, ("?collectionId=" + collectionId), new StringContent(JsonConvert.SerializeObject(item).ToString(), Encoding.UTF8, "application/json"));
+        }
+
+        public async void DeleteItem(string collectionId, string content)
+        {
+            HttpResponseMessage res = await APIRequest(CollectionsApiAction.DeleteItem, ("?collectionId=" + collectionId), new StringContent(content, Encoding.UTF8, "application/json"));
+        }
+
+        protected override async Task<HttpResponseMessage> APIRequest(CollectionsApiAction action, string uriParams = "", HttpContent content = null)
         {
             var req = FormAPIRequestMessage(action, uriParams);
 
