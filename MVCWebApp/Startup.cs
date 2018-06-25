@@ -11,6 +11,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
+using Microsoft.AspNetCore.Http;
+using System.Security.Claims;
 
 namespace Listable.MVCWebApp
 {
@@ -27,6 +29,12 @@ namespace Listable.MVCWebApp
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddTransient<ImageManipulation>();
+            services.AddTransient<CollectionsService>();
+            services.AddTransient<BlobService>();
+
+            // DI to make httpcontext accessible inside service classes
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            services.AddTransient<ClaimsPrincipal>(s => s.GetService<IHttpContextAccessor>().HttpContext.User);
 
             services.AddMvc();
 
