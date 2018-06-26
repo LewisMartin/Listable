@@ -9,7 +9,7 @@ using System.Net.Http.Headers;
 
 namespace Listable.MVCWebApp.Services
 {
-    public class ImageManipulation
+    public class ImageManipulation : IImageManipulation
     {
         private Image _sourceImage;
         private string _fileName;

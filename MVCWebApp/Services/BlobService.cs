@@ -18,7 +18,7 @@ namespace Listable.MVCWebApp.Services
         ImageRetrieveThumbs
     }
 
-    public class BlobService : BackendService<BlobApiAction>
+    public class BlobService : BackendService<BlobApiAction>, IBlobService
     {
         public BlobService(IConfiguration configuration, IDistributedCache cache, IHttpContextAccessor accessor) : base(configuration, cache, accessor)
         {

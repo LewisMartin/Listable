@@ -23,7 +23,7 @@ namespace Listable.MVCWebApp.Services
         DeleteItem
     }
 
-    public class CollectionsService : BackendService<CollectionsApiAction>
+    public class CollectionsService : BackendService<CollectionsApiAction>, ICollectionsService
     {
         public CollectionsService(IConfiguration configuration, IDistributedCache cache, IHttpContextAccessor accessor) : base(configuration, cache, accessor)
         {

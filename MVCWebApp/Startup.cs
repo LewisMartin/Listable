@@ -28,11 +28,12 @@ namespace Listable.MVCWebApp
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddTransient<ImageManipulation>();
-            services.AddTransient<CollectionsService>();
-            services.AddTransient<BlobService>();
+            // Register and map custom services
+            services.AddTransient<IImageManipulation, ImageManipulation>();
+            services.AddTransient<ICollectionsService, CollectionsService>();
+            services.AddTransient<IBlobService, BlobService>();
 
-            // DI to make httpcontext accessible inside service classes
+            // Make httpcontext accessible inside service classes
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddTransient<ClaimsPrincipal>(s => s.GetService<IHttpContextAccessor>().HttpContext.User);
 
@@ -80,7 +81,8 @@ namespace Listable.MVCWebApp
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app,
+                              IHostingEnvironment env)
         {
             if (env.IsDevelopment())
             {

@@ -24,11 +24,11 @@ namespace Listable.MVCWebApp.Controllers
     public class CollectionsController : Controller
     {
         private readonly IConfiguration _configuration;
-        private readonly ImageManipulation _imageManipulation;
-        private readonly BlobService _blobService;
-        private readonly CollectionsService _collectionsService;
+        private readonly IImageManipulation _imageManipulation;
+        private readonly IBlobService _blobService;
+        private readonly ICollectionsService _collectionsService;
 
-        public CollectionsController(IConfiguration configuration, ImageManipulation imageManipulation, BlobService blobService, CollectionsService collectionsService)
+        public CollectionsController(IConfiguration configuration, IImageManipulation imageManipulation, IBlobService blobService, ICollectionsService collectionsService)
         {
             _configuration = configuration;
             _imageManipulation = imageManipulation;
