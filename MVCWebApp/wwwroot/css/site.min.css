@@ -427,6 +427,18 @@ li {
     background-position: center center;
 }
 
+h1 {
+    font-size: 22px;
+    color: #ffffff !important;
+    text-align: center;
+}
+
+h2 {
+    font-size: 18px;
+    color: #ffffff !important;
+    text-align: center;
+}
+
 @media (max-width:580px) and (min-width:510px) {
     .lc-grid-item {
         width: 140px;

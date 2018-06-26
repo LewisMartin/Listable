@@ -1,21 +1,22 @@
 ﻿using Listable.CollectionMicroservice.DTO;
 using System.Collections.Generic;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace Listable.MVCWebApp.Services
 {
     public interface ICollectionsService
     {
-        Task<Collection> Retrieve(string uriParams);
+        Task<HttpResponseMessage> Retrieve(string uriParams);
 
-        Task<List<Collection>> RetrieveAll(string uriParams);
+        Task<HttpResponseMessage> RetrieveAll(string uriParams);
 
-        void Create(Collection collection);
+        Task<HttpResponseMessage> Create(Collection collection);
 
-        void Delete(string uriParams);
+        Task<HttpResponseMessage> Delete(string uriParams);
 
-        void CreateItem(string collectionId, CollectionItem item);
+        Task<HttpResponseMessage> CreateItem(string collectionId, CollectionItem item);
 
-        void DeleteItem(string collectionId, string content);
+        Task<HttpResponseMessage> DeleteItem(string collectionId, string content);
     }
 }

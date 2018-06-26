@@ -25,111 +25,124 @@ namespace Listable.CollectionMicroservice.Controllers
 
         // GET collections/retrieve
         [HttpGet]
-        public JsonResult Retrieve(string collectionId)
+        public IActionResult Retrieve(string collectionId)
         {
-            if (collectionId != null)
-                return Json(_collectionStore.GetCollection(collectionId));
+            if(collectionId == null || collectionId == "")
+                return BadRequest();
 
-            return Json("Collection not found");
+            var collection = _collectionStore.GetCollection(collectionId);
+
+            if (collection == null)
+                return NotFound();
+            else
+                return Json(collection);
         }
 
         // GET collections/retrieveall
         [HttpGet]
-        public JsonResult RetrieveAll(string userId)
+        public IActionResult RetrieveAll(string userId)
         {
-            if (userId != null)
-                return Json(_collectionStore.GetAllCollectionsForUser(userId).ToList());
+            if (userId == null || userId == "")
+                return BadRequest();
 
-            return Json(_collectionStore.GetAllCollections().ToList());
+            return Json(_collectionStore.GetAllCollectionsForUser(userId).ToList());
         }
 
         // GET collections/retrieveall
         [HttpGet]
-        public JsonResult RetrieveItem(string collectionId, string itemId)
+        public IActionResult RetrieveItem(string collectionId, string itemId)
         {
-            if (collectionId != null)
-                return Json(_collectionStore.GetCollectionItem(collectionId, new Guid(itemId)));
+            if (collectionId == null || collectionId == "" || itemId == null || itemId == "")
+                return BadRequest();
 
-            return Json("Collection not found");
+            var item = _collectionStore.GetCollectionItem(collectionId, new Guid(itemId));
+
+            if (item == null)
+                return NotFound();
+
+            return Json(item);
         }
 
         // POST collections/create
         [HttpPost]
-        public async Task<string> Create([FromBody] Collection collection)
+        public IActionResult Create([FromBody] Collection collection)
         {
+            if (collection == null)
+                return BadRequest();
+
             try
             {
                 var collections = new List<Collection>();
                 collections.Add(collection);
 
-                await _collectionStore.InsertCollections(collections);
+                _collectionStore.InsertCollections(collections);
+
+                return Ok();
             }
             catch (Exception ex)
             {
-                return ex.Message;
+                return StatusCode(StatusCodes.Status500InternalServerError);
             }
-
-            return "Created test collections";
         }
 
         // PUT collections/update/5
         [HttpPut]
-        public string Update(string id, [FromBody] Collection collection)
+        public IActionResult Update(string id, [FromBody] Collection collection)
         {
-            _collectionStore.UpdateCollection(id, collection);
+            if (id == null || id == "" || collection == null)
+                return BadRequest();
 
-            return "Updated collection: " + id;
+            if (_collectionStore.UpdateCollection(id, collection))
+                return Ok();
+            else
+                return StatusCode(StatusCodes.Status500InternalServerError);
         }
 
         // DELETE collections/delete/5
         [HttpDelete]
-        public string Delete(string id)
+        public IActionResult Delete(string id)
         {
-            var success = _collectionStore.DeleteCollection(id);
+            if (id == null || id == "")
+                return BadRequest();
 
-            if (success)
-                return "Deleted collection: " + id;
+            if (_collectionStore.DeleteCollection(id))
+                return Ok();
             else
-                return "Deletion failed";
+                return StatusCode(StatusCodes.Status500InternalServerError);
         }
 
         [HttpPost]
-        public string CreateItem(string collectionId, [FromBody] CollectionItem item)
+        public IActionResult CreateItem(string collectionId, [FromBody] CollectionItem item)
         {
+            if (collectionId == null || collectionId == "" || item == null)
+                return BadRequest();
+
             var collection = _collectionStore.GetCollection(collectionId);
             collection.CollectionItems.Add(item);
 
-            var success = _collectionStore.UpdateCollection(collectionId, collection);
-
-            if (success)
-                return "Added item to collection";
+            if (_collectionStore.UpdateCollection(collectionId, collection))
+                return Ok();
             else
-                return "Error";
+                return StatusCode(StatusCodes.Status500InternalServerError);
         }
 
         [HttpPost]
-        public string DeleteItem(string collectionId, [FromBody] List<string> itemIds)
+        public IActionResult DeleteItem(string collectionId, [FromBody] List<string> itemIds)
         {
-            if (itemIds != null && collectionId != null)
+            if (collectionId == null || collectionId == "" || itemIds == null)
+                return BadRequest();
+
+            var collection = _collectionStore.GetCollection(collectionId);
+
+            foreach (var id in itemIds)
             {
-                var collection = _collectionStore.GetCollection(collectionId);
-
-                foreach (var id in itemIds)
-                {
-                    collection.CollectionItems.RemoveAll(i => i.Id.ToString() == id);
-                }
-
-                var success = _collectionStore.UpdateCollection(collectionId, collection);
-
-                if (success)
-                    return "Deleted item from collection";
-                else
-                    return "Error";
+                collection.CollectionItems.RemoveAll(i => i.Id.ToString() == id);
             }
+
+            if (_collectionStore.UpdateCollection(collectionId, collection))
+                return Ok();
             else
-            {
-                return "Parameters not supplied";
-            }
+                return StatusCode(StatusCodes.Status500InternalServerError);
         }
     }
 }

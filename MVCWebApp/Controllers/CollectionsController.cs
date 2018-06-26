@@ -43,7 +43,13 @@ namespace Listable.MVCWebApp.Controllers
 
         public async Task<IActionResult> Overview()
         {
-            var collections = await _collectionsService.RetrieveAll("?userId=" + GetUserUniqueName());
+            var response = await _collectionsService.RetrieveAll(GetUserUniqueName());
+            if (!response.IsSuccessStatusCode)
+                return RedirectToAction("Error");
+
+            var content = await response.Content.ReadAsStringAsync();
+
+            var collections = JsonConvert.DeserializeObject<List<Collection>>(await response.Content.ReadAsStringAsync());
 
             var userCollections = new List<CollectionOverview>();
             foreach (var collection in collections)
@@ -60,7 +66,11 @@ namespace Listable.MVCWebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> Collection(string collectionId)
         {
-            var collection = await _collectionsService.Retrieve("?collectionId=" + collectionId);
+            var response = await _collectionsService.Retrieve(collectionId);
+            if (!response.IsSuccessStatusCode)
+                return RedirectToAction("Error");
+
+            var collection = JsonConvert.DeserializeObject<Collection>(await response.Content.ReadAsStringAsync());
 
             if (collection.DisplayFormat == CollectionDisplayFormat.Grid)
                 return RedirectToAction("CollectionGrid", new { Id = collectionId });
@@ -84,7 +94,11 @@ namespace Listable.MVCWebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> CollectionGrid(string Id)
         {
-            var collection = await _collectionsService.Retrieve("?collectionId=" + Id);
+            var response = await _collectionsService.Retrieve(Id);
+            if (!response.IsSuccessStatusCode)
+                return RedirectToAction("Error");
+
+            var collection = JsonConvert.DeserializeObject<Collection>(await response.Content.ReadAsStringAsync());
 
             string uriParams = "?";
 
@@ -112,9 +126,9 @@ namespace Listable.MVCWebApp.Controllers
             }
 
             return View(new CollectionGridViewModel() {
-                    CollectionId = collection.Id,
-                    CollectionName = collection.Name,
-                    CollectionItems = collectionItems
+                CollectionId = collection.Id,
+                CollectionName = collection.Name,
+                CollectionItems = collectionItems
             });
         }
 
@@ -139,7 +153,10 @@ namespace Listable.MVCWebApp.Controllers
                     CollectionItems = new List<CollectionItem>()
                 };
 
-                _collectionsService.Create(collection);
+
+                if (!_collectionsService.Create(collection).Result.IsSuccessStatusCode)
+                    return RedirectToAction("Error");
+
                 return RedirectToAction("Overview");
             }
             else
@@ -151,7 +168,11 @@ namespace Listable.MVCWebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> DeleteCollection()
         {
-            var collections = await _collectionsService.RetrieveAll("?userId=" + GetUserUniqueName());
+            var response = await _collectionsService.RetrieveAll(GetUserUniqueName());
+            if (!response.IsSuccessStatusCode)
+                return RedirectToAction("Error");
+
+            var collections = JsonConvert.DeserializeObject<List<Collection>>(await response.Content.ReadAsStringAsync());
 
             var selectItems = new List<SelectListItem>();
 
@@ -178,20 +199,25 @@ namespace Listable.MVCWebApp.Controllers
         {
             if (ModelState.IsValid)
             {
-                var collection = await _collectionsService.Retrieve("?collectionId=" + viewModel.SelectedCollection);
+                var response = await _collectionsService.Retrieve(viewModel.SelectedCollection);
+                if (!response.IsSuccessStatusCode)
+                    return RedirectToAction("Error");
+
+                var collection = JsonConvert.DeserializeObject<Collection>(await response.Content.ReadAsStringAsync());
 
                 if (collection.ImageEnabled)
                 {
                     foreach (var item in collection.CollectionItems)
                     {
-                        if(item.ImageId != null && item.ImageId != "")
+                        if (item.ImageId != null && item.ImageId != "")
                         {
                             _blobService.ImageDelete("?id=" + item.ImageId);
                         }
                     }
                 }
 
-                _collectionsService.Delete("?id=" + viewModel.SelectedCollection);
+                if(!_collectionsService.Delete(viewModel.SelectedCollection).Result.IsSuccessStatusCode)
+                    return RedirectToAction("Error");
 
                 return RedirectToAction("Overview");
             }
@@ -204,7 +230,11 @@ namespace Listable.MVCWebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> ViewItem(string collectionId, string itemId)
         {
-            var collection = await _collectionsService.Retrieve("?collectionId=" + collectionId);
+            var response = await _collectionsService.Retrieve(collectionId);
+            if (!response.IsSuccessStatusCode)
+                return RedirectToAction("Error");
+
+            var collection = JsonConvert.DeserializeObject<Collection>(await response.Content.ReadAsStringAsync());
 
             var item = collection.CollectionItems.Where(i => i.Id == new Guid(itemId)).FirstOrDefault();
 
@@ -230,7 +260,11 @@ namespace Listable.MVCWebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> CreateItem(string collectionId)
         {
-            var collection = await _collectionsService.Retrieve("?collectionId=" + collectionId);
+            var response = await _collectionsService.Retrieve(collectionId);
+            if (!response.IsSuccessStatusCode)
+                return RedirectToAction("Error");
+
+            var collection = JsonConvert.DeserializeObject<Collection>(await response.Content.ReadAsStringAsync());
 
             CreateItemViewModel viewModel = new CreateItemViewModel()
             {
@@ -288,7 +322,9 @@ namespace Listable.MVCWebApp.Controllers
                     ImageId = imgId
                 };
 
-                _collectionsService.CreateItem(viewModel.CollectionId, item);
+                if (!_collectionsService.CreateItem(viewModel.CollectionId, item).Result.IsSuccessStatusCode)
+                    return RedirectToAction("Error");
+
                 return RedirectToAction("Collection", new { collectionId = viewModel.CollectionId });
             }
             else
@@ -300,7 +336,11 @@ namespace Listable.MVCWebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> DeleteItem(string collectionId)
         {
-            var collection = await _collectionsService.Retrieve("?collectionId=" + collectionId);
+            var response = await _collectionsService.Retrieve(collectionId);
+            if (!response.IsSuccessStatusCode)
+                return RedirectToAction("Error");
+
+            var collection = JsonConvert.DeserializeObject<Collection>(await response.Content.ReadAsStringAsync());
 
             var deleteItemOptions = new List<DeleteItemOption>();
 
@@ -328,7 +368,11 @@ namespace Listable.MVCWebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteItem(DeleteItemViewModel viewModel)
         {
-            var collection = await _collectionsService.Retrieve("?collectionId=" + viewModel.CollectionId);
+            var response = await _collectionsService.Retrieve(viewModel.CollectionId);
+            if (!response.IsSuccessStatusCode)
+                return RedirectToAction("Error");
+
+            var collection = JsonConvert.DeserializeObject<Collection>(await response.Content.ReadAsStringAsync());
 
             var itemIds = new List<string>();
             var imageIds = new List<string>();
@@ -352,7 +396,9 @@ namespace Listable.MVCWebApp.Controllers
 
             // delete items
             var content = JsonConvert.SerializeObject(itemIds);
-             _collectionsService.DeleteItem(viewModel.CollectionId, content);
+
+            if (!_collectionsService.DeleteItem(viewModel.CollectionId, content).Result.IsSuccessStatusCode)
+                return RedirectToAction("Error");
 
             return RedirectToAction("Collection", new { collectionId = viewModel.CollectionId });
         }

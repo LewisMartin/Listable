@@ -71,7 +71,7 @@ namespace Listable.CollectionMicroservice.Services
             }
             catch
             {
-                throw;
+                return false;
             }
         }
 
@@ -84,7 +84,7 @@ namespace Listable.CollectionMicroservice.Services
             }
             catch
             {
-                throw;
+                return false;
             }
         }
     }

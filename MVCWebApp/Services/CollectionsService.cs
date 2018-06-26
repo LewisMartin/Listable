@@ -29,36 +29,34 @@ namespace Listable.MVCWebApp.Services
         {
         }
 
-        public async Task<Collection> Retrieve(string uriParams)
+        public async Task<HttpResponseMessage> Retrieve(string collectionId)
         {
-            HttpResponseMessage res = await APIRequest(CollectionsApiAction.Retrieve, uriParams);
-            return JsonConvert.DeserializeObject<Collection>(await res.Content.ReadAsStringAsync());
+            return await APIRequest(CollectionsApiAction.Retrieve, "?collectionId=" + collectionId);
         }
 
-        public async Task<List<Collection>> RetrieveAll(string uriParams)
+        public async Task<HttpResponseMessage> RetrieveAll(string userId)
         {
-            HttpResponseMessage res = await APIRequest(CollectionsApiAction.RetrieveAll, uriParams);
-            return JsonConvert.DeserializeObject<List<Collection>>(await res.Content.ReadAsStringAsync());
+            return await APIRequest(CollectionsApiAction.RetrieveAll, "?userId=" + userId);
         }
 
-        public async void Create(Collection collection)
+        public async Task<HttpResponseMessage> Create(Collection collection)
         {
-            HttpResponseMessage res = await APIRequest(CollectionsApiAction.Create, "", new StringContent(JsonConvert.SerializeObject(collection).ToString(), Encoding.UTF8, "application/json"));
+            return await APIRequest(CollectionsApiAction.Create, "", new StringContent(JsonConvert.SerializeObject(collection).ToString(), Encoding.UTF8, "application/json"));
         }
 
-        public async void Delete(string uriParams)
+        public async Task<HttpResponseMessage> Delete(string id)
         {
-            HttpResponseMessage res = await APIRequest(CollectionsApiAction.Delete, uriParams);
+            return await APIRequest(CollectionsApiAction.Delete, "?id=" + id);
         }
 
-        public async void CreateItem(string collectionId, CollectionItem item)
+        public async Task<HttpResponseMessage> CreateItem(string collectionId, CollectionItem item)
         {
-            HttpResponseMessage res = await APIRequest(CollectionsApiAction.CreateItem, ("?collectionId=" + collectionId), new StringContent(JsonConvert.SerializeObject(item).ToString(), Encoding.UTF8, "application/json"));
+            return await APIRequest(CollectionsApiAction.CreateItem, ("?collectionId=" + collectionId), new StringContent(JsonConvert.SerializeObject(item).ToString(), Encoding.UTF8, "application/json"));
         }
 
-        public async void DeleteItem(string collectionId, string content)
+        public async Task<HttpResponseMessage> DeleteItem(string collectionId, string content)
         {
-            HttpResponseMessage res = await APIRequest(CollectionsApiAction.DeleteItem, ("?collectionId=" + collectionId), new StringContent(content, Encoding.UTF8, "application/json"));
+            return await APIRequest(CollectionsApiAction.DeleteItem, ("?collectionId=" + collectionId), new StringContent(content, Encoding.UTF8, "application/json"));
         }
 
         protected override async Task<HttpResponseMessage> APIRequest(CollectionsApiAction action, string uriParams = "", HttpContent content = null)
@@ -74,7 +72,6 @@ namespace Listable.MVCWebApp.Services
             return await Client.SendAsync(req);
         }
 
-        // To CollectionService, override of method on base class 'FormAPIRequestMessage'
         protected override HttpRequestMessage FormAPIRequestMessage(CollectionsApiAction action, string uriParams)
         {
             switch (action)
