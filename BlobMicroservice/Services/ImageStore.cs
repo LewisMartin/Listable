@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace BlobMicroservice.Services
 {
-    public class ImageStore
+    public class ImageStore : IImageStore
     {
         private CloudBlobClient _blobClient;
         private string baseUri = "https://listable.blob.core.windows.net";

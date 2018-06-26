@@ -14,9 +14,9 @@ namespace BlobMicroservice.Controllers
     [Route("api/[controller]/[action]")]
     public class ImageServiceController : Controller
     {
-        private ImageStore _imageStore;
+        private IImageStore _imageStore;
 
-        public ImageServiceController(ImageStore imageStore)
+        public ImageServiceController(IImageStore imageStore)
         {
             _imageStore = imageStore;
         }

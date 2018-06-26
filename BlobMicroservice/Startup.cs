@@ -28,7 +28,7 @@ namespace BlobMicroservice
         {
             services.AddMvc();
 
-            services.AddTransient<ImageStore>();
+            services.AddTransient<IImageStore, ImageStore>();
 
             // Configure the app to use Jwt Bearer Authentication
             services.AddAuthentication(options =>
