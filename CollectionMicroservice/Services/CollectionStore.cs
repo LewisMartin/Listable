@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Listable.CollectionMicroservice.Services
 {
-    public class CollectionStore
+    public class CollectionStore : ICollectionStore
     {
         private DocumentClient _docClient;
         private Uri _collectionsLink;

@@ -16,9 +16,9 @@ namespace Listable.CollectionMicroservice.Controllers
     [Route("api/[controller]/[action]")]
     public class CollectionServiceController : Controller
     {
-        private CollectionStore _collectionStore;
+        private ICollectionStore _collectionStore;
 
-        public CollectionServiceController(CollectionStore collectionStore)
+        public CollectionServiceController(ICollectionStore collectionStore)
         {
             _collectionStore = collectionStore;
         }
