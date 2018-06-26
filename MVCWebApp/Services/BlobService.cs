@@ -24,27 +24,24 @@ namespace Listable.MVCWebApp.Services
         {
         }
 
-        public async Task<string> ImageUpload(MultipartFormDataContent content)
+        public async Task<HttpResponseMessage> ImageUpload(MultipartFormDataContent content)
         {
-            HttpResponseMessage blobRes = await APIRequest(BlobApiAction.ImageUpload, "", content);
-            return await blobRes.Content.ReadAsStringAsync();
+            return await APIRequest(BlobApiAction.ImageUpload, "", content);
         }
 
-        public async void ImageDelete(string uriParams)
+        public async Task<HttpResponseMessage> ImageDelete(string imgId)
         {
-            HttpResponseMessage blobRes = await APIRequest(BlobApiAction.ImageDelete, uriParams);
+            return await APIRequest(BlobApiAction.ImageDelete, "?id=" + imgId);
         }
 
-        public async Task<string> ImageRetrieveUrl(string uriParams)
+        public async Task<HttpResponseMessage> ImageRetrieveUrl(string imgId)
         {
-            HttpResponseMessage blobRes = await APIRequest(BlobApiAction.ImageRetrieveUrl, uriParams);
-            return await blobRes.Content.ReadAsStringAsync();
+            return await APIRequest(BlobApiAction.ImageRetrieveUrl, "?id=" + imgId);
         }
 
-        public async Task<Dictionary<string, string>> ImageRetrieveThumbs(string uriParams)
+        public async Task<HttpResponseMessage> ImageRetrieveThumbs(string imgIds)
         {
-            HttpResponseMessage res = await APIRequest(BlobApiAction.ImageRetrieveThumbs, uriParams);
-            return JsonConvert.DeserializeObject<Dictionary<string, string>>(await res.Content.ReadAsStringAsync());
+            return await APIRequest(BlobApiAction.ImageRetrieveThumbs, "?" + imgIds);
         }
 
         protected override async Task<HttpResponseMessage> APIRequest(BlobApiAction action, string uriParams = "", HttpContent content = null)

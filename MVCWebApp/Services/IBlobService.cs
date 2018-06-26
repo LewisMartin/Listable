@@ -6,12 +6,12 @@ namespace Listable.MVCWebApp.Services
 {
     public interface IBlobService
     {
-        Task<string> ImageUpload(MultipartFormDataContent content);
+        Task<HttpResponseMessage> ImageUpload(MultipartFormDataContent content);
 
-        void ImageDelete(string uriParams);
+        Task<HttpResponseMessage> ImageDelete(string uriParams);
 
-        Task<string> ImageRetrieveUrl(string uriParams);
+        Task<HttpResponseMessage> ImageRetrieveUrl(string uriParams);
 
-        Task<Dictionary<string, string>> ImageRetrieveThumbs(string uriParams);
+        Task<HttpResponseMessage> ImageRetrieveThumbs(string uriParams);
     }
 }

@@ -22,40 +22,71 @@ namespace BlobMicroservice.Controllers
         }
 
         [HttpPost]
-        public async Task<string> Upload(IFormFile image)
+        public async Task<IActionResult> Upload(IFormFile image)
         {
-            if (image != null)
+            if (image == null)
+                return BadRequest();
+
+            try
             {
                 using (var stream = image.OpenReadStream())
                 {
                     var imageId = await _imageStore.SaveImage(stream);
-                    return imageId;
+                    return Json(imageId);
                 }
             }
-            else
+            catch
             {
-                return "Image was null";
+                return StatusCode(StatusCodes.Status500InternalServerError);
             }
         }
 
         [HttpGet]
-        public String RetrieveUrl(string id)
+        public IActionResult RetrieveUrl(string id)
         {
-            return _imageStore.GetUri(id);
+            if (id == null || id == "")
+                return BadRequest();
+
+            try
+            {
+                return Json(_imageStore.GetUri(id));
+            }
+            catch
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError);
+            }
         }
 
         [HttpGet]
-        public JsonResult RetrieveThumbnailUrls(string[] ids)
+        public IActionResult RetrieveThumbnailUrls(string[] ids)
         {
-            Dictionary<string, string> thumbnailIds = _imageStore.MapThumbnailUris(ids);
+            if (ids == null)
+                return BadRequest();
 
-            return Json(thumbnailIds);
+            try
+            {
+                return Json(_imageStore.MapThumbnailUris(ids));
+            }
+            catch
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError);
+            }
         }
 
         [HttpDelete]
-        public async Task<bool> Delete(string id)
+        public async Task<IActionResult> Delete(string id)
         {
-            return await _imageStore.DeleteImage(id);
+            if (id == null || id == "")
+                return BadRequest();
+
+            try
+            {
+                return Json(await _imageStore.DeleteImage(id));
+            }
+            catch
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError);
+            }   
         }
     }
 }

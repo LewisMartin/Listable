@@ -100,20 +100,23 @@ namespace Listable.MVCWebApp.Controllers
 
             var collection = JsonConvert.DeserializeObject<Collection>(await response.Content.ReadAsStringAsync());
 
-            string uriParams = "?";
-
+            string imgIds = "";
             foreach (var item in collection.CollectionItems)
             {
                 if (item.ImageId != null && item.ImageId != "")
                 {
-                    if (uriParams != "?")
-                        uriParams += "&";
+                    if (imgIds != "")
+                        imgIds += "&";
 
-                    uriParams += ("ids=" + item.ImageId);
+                    imgIds += ("ids=" + item.ImageId);
                 }
             }
 
-            var thumbnailMap = await _blobService.ImageRetrieveThumbs(uriParams);
+            response = await _blobService.ImageRetrieveThumbs(imgIds);
+            if (!response.IsSuccessStatusCode)
+                return RedirectToAction("Error");
+
+            var thumbnailMap = JsonConvert.DeserializeObject<Dictionary<string, string>>(await response.Content.ReadAsStringAsync());
 
             var collectionItems = new List<CollectionGridItem>();
 
@@ -211,7 +214,8 @@ namespace Listable.MVCWebApp.Controllers
                     {
                         if (item.ImageId != null && item.ImageId != "")
                         {
-                            _blobService.ImageDelete("?id=" + item.ImageId);
+                            if(!_blobService.ImageDelete(item.ImageId).Result.IsSuccessStatusCode)
+                                return RedirectToAction("Error");
                         }
                     }
                 }
@@ -241,7 +245,11 @@ namespace Listable.MVCWebApp.Controllers
             var url = "";
             if (collection.ImageEnabled && item.ImageId != null && item.ImageId != "")
             {
-                url = await _blobService.ImageRetrieveUrl("?id=" + item.ImageId);
+                response = await _blobService.ImageRetrieveUrl(item.ImageId);
+                if (!response.IsSuccessStatusCode)
+                    return RedirectToAction("Error");
+
+                url = JsonConvert.DeserializeObject<string>(await response.Content.ReadAsStringAsync());
             }
 
             ViewItemViewModel viewModel = new ViewItemViewModel()
@@ -311,7 +319,11 @@ namespace Listable.MVCWebApp.Controllers
                         }
                     };
 
-                    imgId = await _blobService.ImageUpload(content);
+                    var response = await _blobService.ImageUpload(content);
+                    if (!response.IsSuccessStatusCode)
+                        return RedirectToAction("Error");
+
+                    imgId = JsonConvert.DeserializeObject<string>(await response.Content.ReadAsStringAsync());
                 }
 
                 CollectionItem item = new CollectionItem()
@@ -390,7 +402,8 @@ namespace Listable.MVCWebApp.Controllers
                 // delete media
                 foreach (var imageId in imageIds)
                 {
-                    _blobService.ImageDelete("?id=" + imageId);
+                    if (!_blobService.ImageDelete(imageId).Result.IsSuccessStatusCode)
+                        return RedirectToAction("Error");
                 }
             }
 
