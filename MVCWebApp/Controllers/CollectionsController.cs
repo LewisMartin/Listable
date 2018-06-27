@@ -12,7 +12,6 @@ using Listable.MVCWebApp.ViewModels.Collections;
 using Newtonsoft.Json;
 using System;
 using System.Linq;
-using System.Text;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Net.Http.Headers;
 using Microsoft.AspNetCore.Http;
@@ -47,8 +46,6 @@ namespace Listable.MVCWebApp.Controllers
             if (!response.IsSuccessStatusCode)
                 return RedirectToAction("Error");
 
-            var content = await response.Content.ReadAsStringAsync();
-
             var collections = JsonConvert.DeserializeObject<List<Collection>>(await response.Content.ReadAsStringAsync());
 
             var userCollections = new List<CollectionOverview>();
@@ -81,14 +78,12 @@ namespace Listable.MVCWebApp.Controllers
                 collectionItemNames.Add(new Tuple<string, string>(item.Id.ToString(), item.Name));
             }
 
-            CollectionViewModel viewModel = new CollectionViewModel()
+            return View(new CollectionViewModel()
             {
                 CollectionId = collectionId,
                 CollectionName = collection.Name,
                 CollectionItems = collectionItemNames
-            };
-
-            return View(viewModel);
+            });
         }
 
         [HttpGet]
@@ -156,7 +151,6 @@ namespace Listable.MVCWebApp.Controllers
                     CollectionItems = new List<CollectionItem>()
                 };
 
-
                 if (!_collectionsService.Create(collection).Result.IsSuccessStatusCode)
                     return RedirectToAction("Error");
 
@@ -178,7 +172,6 @@ namespace Listable.MVCWebApp.Controllers
             var collections = JsonConvert.DeserializeObject<List<Collection>>(await response.Content.ReadAsStringAsync());
 
             var selectItems = new List<SelectListItem>();
-
             foreach (var collection in collections)
             {
                 selectItems.Add(new SelectListItem()
@@ -188,12 +181,10 @@ namespace Listable.MVCWebApp.Controllers
                 });
             }
 
-            DeleteCollectionViewModel viewModel = new DeleteCollectionViewModel()
+            return View(new DeleteCollectionViewModel()
             {
                 Collections = selectItems
-            };
-
-            return View(viewModel);
+            });
         }
 
         [HttpPost]
@@ -250,9 +241,9 @@ namespace Listable.MVCWebApp.Controllers
                     return RedirectToAction("Error");
 
                 url = JsonConvert.DeserializeObject<string>(await response.Content.ReadAsStringAsync());
-            }
+            } 
 
-            ViewItemViewModel viewModel = new ViewItemViewModel()
+            return View(new ViewItemViewModel()
             {
                 CollectionId = collection.Id,
                 CollectionName = collection.Name,
@@ -260,9 +251,7 @@ namespace Listable.MVCWebApp.Controllers
                 Description = item.Description,
                 ImageEnabled = collection.ImageEnabled,
                 ImageUrl = url
-            };
-
-            return View(viewModel);
+            });
         }
 
         [HttpGet]
@@ -274,14 +263,12 @@ namespace Listable.MVCWebApp.Controllers
 
             var collection = JsonConvert.DeserializeObject<Collection>(await response.Content.ReadAsStringAsync());
 
-            CreateItemViewModel viewModel = new CreateItemViewModel()
+            return View(new CreateItemViewModel()
             {
                 CollectionId = collection.Id,
                 CollectionName = collection.Name,
                 ImageEnabled = collection.ImageEnabled
-            };
-
-            return View(viewModel);
+            });
         }
 
         [HttpPost]
@@ -366,14 +353,12 @@ namespace Listable.MVCWebApp.Controllers
                 });
             }
 
-            DeleteItemViewModel viewModel = new DeleteItemViewModel()
+            return View(new DeleteItemViewModel()
             {
                 CollectionId = collection.Id,
                 CollectionName = collection.Name,
                 DeleteItemOptions = deleteItemOptions
-            };
-
-            return View(viewModel);
+            });
         }
 
         [HttpPost]
@@ -399,16 +384,14 @@ namespace Listable.MVCWebApp.Controllers
 
             if (collection.ImageEnabled)
             {
-                // delete media
-                foreach (var imageId in imageIds)
+                foreach (var imageId in imageIds)                   // delete media
                 {
                     if (!_blobService.ImageDelete(imageId).Result.IsSuccessStatusCode)
                         return RedirectToAction("Error");
                 }
             }
 
-            // delete items
-            var content = JsonConvert.SerializeObject(itemIds);
+            var content = JsonConvert.SerializeObject(itemIds);     // delete items
 
             if (!_collectionsService.DeleteItem(viewModel.CollectionId, content).Result.IsSuccessStatusCode)
                 return RedirectToAction("Error");

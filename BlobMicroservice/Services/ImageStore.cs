@@ -11,7 +11,7 @@ namespace BlobMicroservice.Services
     public class ImageStore : IImageStore
     {
         private CloudBlobClient _blobClient;
-        private string baseUri = "https://listable.blob.core.windows.net";
+        private readonly string baseUri = "https://listable.blob.core.windows.net";
         private readonly IConfiguration _configuration;
 
         public ImageStore(IConfiguration configuration)
