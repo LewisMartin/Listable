@@ -14,7 +14,7 @@
             @{  var count = 1;
                 foreach (var item in Model.CollectionItems)
                 {
-                    <a href="@Url.Action("ViewItem", "Collections", new { collectionId = Model.CollectionId, itemId = @item.Item1 }, null)">
+                    <a href="@Url.Action("ViewItem", "CollectionItem", new { collectionId = Model.CollectionId, itemId = @item.Item1 }, null)">
                         <li class="@(count % 2 == 0 ? "alt-li" : "") { class= }">
                             @count. @item.Item2
                             <span class="fl-right"><i class="fa fa-angle-right" aria-hidden="true"></i></span>
@@ -26,8 +26,8 @@
         </ul>
     </div>
     <div class="listable-collections-btns">
-        <a href="@Url.Action("DeleteItem", "Collections", new { collectionId = Model.CollectionId }, null)"><div class="fl-right"><span><i class="fa fa-trash-alt" aria-hidden="true"></i></span></div></a>
-        <a href="@Url.Action("CreateItem", "Collections", new { collectionId = Model.CollectionId }, null)"><div class="fl-right bump-right"><span><i class="fa fa-plus" aria-hidden="true"></i></span></div></a>
+        <a href="@Url.Action("DeleteItem", "CollectionItem", new { collectionId = Model.CollectionId }, null)"><div class="fl-right"><span><i class="fa fa-trash-alt" aria-hidden="true"></i></span></div></a>
+        <a href="@Url.Action("CreateItem", "CollectionItem", new { collectionId = Model.CollectionId }, null)"><div class="fl-right bump-right"><span><i class="fa fa-plus" aria-hidden="true"></i></span></div></a>
         <a href="@Url.Action("Overview", "Collections", null, null)"><div><span><i class="fa fa-arrow-left" aria-hidden="true"></i></span></div></a>
     </div>
 </div>

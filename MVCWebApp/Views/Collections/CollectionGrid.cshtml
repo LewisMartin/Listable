@@ -14,7 +14,7 @@
             @{  var count = 1;
                 foreach (var item in Model.CollectionItems)
                 {
-                    <a href="@Url.Action("ViewItem", "Collections", new { collectionId = Model.CollectionId, itemId = @item.ItemId }, null)">
+                    <a href="@Url.Action("ViewItem", "CollectionItem", new { collectionId = Model.CollectionId, itemId = @item.ItemId }, null)">
                         <li class="lc-grid-item">
                             <div class="lc-grid-item-title">
                                 @count. @item.ItemName
@@ -29,8 +29,8 @@
         </ul>
     </div>
     <div class="listable-collections-btns">
-        <a href="@Url.Action("DeleteItem", "Collections", new { collectionId = Model.CollectionId }, null)"><div class="fl-right"><span><i class="fa fa-trash-alt" aria-hidden="true"></i></span></div></a>
-        <a href="@Url.Action("CreateItem", "Collections", new { collectionId = Model.CollectionId }, null)"><div class="fl-right bump-right"><span><i class="fa fa-plus" aria-hidden="true"></i></span></div></a>
+        <a href="@Url.Action("DeleteItem", "CollectionItem", new { collectionId = Model.CollectionId }, null)"><div class="fl-right"><span><i class="fa fa-trash-alt" aria-hidden="true"></i></span></div></a>
+        <a href="@Url.Action("CreateItem", "CollectionItem", new { collectionId = Model.CollectionId }, null)"><div class="fl-right bump-right"><span><i class="fa fa-plus" aria-hidden="true"></i></span></div></a>
         <a href="@Url.Action("Overview", "Collections", null, null)"><div><span><i class="fa fa-arrow-left" aria-hidden="true"></i></span></div></a>
     </div>
 </div>

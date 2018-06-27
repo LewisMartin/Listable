@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using System.Net.Http;
 using Microsoft.Extensions.Caching.Distributed;
+using Listable.MVCWebApp.Models;
+using System.Diagnostics;
 
 namespace Listable.MVCWebApp.Controllers
 {
@@ -22,6 +24,12 @@ namespace Listable.MVCWebApp.Controllers
         public ActionResult Index()
         {
             return RedirectToAction("Index", "Collections"); ;
+        }
+
+        [HttpGet]
+        public IActionResult Error()
+        {
+            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
     }
 }
