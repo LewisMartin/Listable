@@ -20,13 +20,11 @@ namespace Listable.MVCWebApp.Controllers
     [Authorize]
     public class CollectionsController : Controller
     {
-        private readonly IConfiguration _configuration;
         private readonly IBlobService _blobService;
         private readonly ICollectionsService _collectionsService;
 
-        public CollectionsController(IConfiguration configuration, IBlobService blobService, ICollectionsService collectionsService)
+        public CollectionsController(IBlobService blobService, ICollectionsService collectionsService)
         {
-            _configuration = configuration;
             _blobService = blobService;
             _collectionsService = collectionsService;
         }
