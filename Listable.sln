@@ -7,7 +7,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CollectionMicroservice", "C
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MVCWebApp", "MVCWebApp\MVCWebApp.csproj", "{E061AFCC-0205-454F-8527-A09AA127103A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlobMicroservice", "BlobMicroservice\BlobMicroservice.csproj", "{2FA51AF9-4B39-4170-8071-ADB7608DFA2A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlobMicroservice", "BlobMicroservice\BlobMicroservice.csproj", "{2FA51AF9-4B39-4170-8071-ADB7608DFA2A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Clients", "Clients", "{B61A33BD-8A41-4849-9A96-F6D78DCF12A3}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Microservices", "Microservices", "{46FD829E-00C4-4BDE-85D2-B2E1E9FEBA2D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Unit Tests", "Unit Tests", "{8611F0D2-1A57-4B8F-9862-EE9B5D422905}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -30,6 +36,11 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{0C58ED19-B434-44D0-A687-C4957FD67BD8} = {46FD829E-00C4-4BDE-85D2-B2E1E9FEBA2D}
+		{E061AFCC-0205-454F-8527-A09AA127103A} = {B61A33BD-8A41-4849-9A96-F6D78DCF12A3}
+		{2FA51AF9-4B39-4170-8071-ADB7608DFA2A} = {46FD829E-00C4-4BDE-85D2-B2E1E9FEBA2D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0BF50F02-DCC8-40CA-9403-2C7FD1DDC62A}
