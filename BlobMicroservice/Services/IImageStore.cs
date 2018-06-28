@@ -2,7 +2,7 @@
 using System.IO;
 using System.Threading.Tasks;
 
-namespace BlobMicroservice.Services
+namespace Listable.BlobMicroservice.Services
 {
     public interface IImageStore
     {

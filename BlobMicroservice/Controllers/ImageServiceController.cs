@@ -1,10 +1,10 @@
 ﻿using System.Threading.Tasks;
-using BlobMicroservice.Services;
+using Listable.BlobMicroservice.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace BlobMicroservice.Controllers
+namespace Listable.BlobMicroservice.Controllers
 {
     [Authorize]
     [Route("api/[controller]/[action]")]

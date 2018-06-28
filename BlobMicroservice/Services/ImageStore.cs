@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace BlobMicroservice.Services
+namespace Listable.BlobMicroservice.Services
 {
     public class ImageStore : IImageStore
     {

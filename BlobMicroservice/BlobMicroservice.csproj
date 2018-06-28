@@ -2,6 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
+    <RootNamespace>Listable.BlobMicroservice</RootNamespace>
+    <AssemblyName>Listable.BlobMicroservice</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
