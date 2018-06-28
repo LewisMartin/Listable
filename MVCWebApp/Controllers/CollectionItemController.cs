@@ -10,9 +10,11 @@ using Newtonsoft.Json;
 using System;
 using System.Linq;
 using System.Net.Http.Headers;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Listable.MVCWebApp.Controllers
 {
+    [Authorize]
     public class CollectionItemController : Controller
     {
         private readonly IConfiguration _configuration;
@@ -156,7 +158,6 @@ namespace Listable.MVCWebApp.Controllers
             var collection = JsonConvert.DeserializeObject<Collection>(await response.Content.ReadAsStringAsync());
 
             var deleteItemOptions = new List<DeleteItemOption>();
-
             foreach (var item in collection.CollectionItems)
             {
                 deleteItemOptions.Add(new DeleteItemOption()
