@@ -90,16 +90,11 @@ namespace Listable.MVCWebApp.Controllers
 
             var collection = JsonConvert.DeserializeObject<Collection>(await response.Content.ReadAsStringAsync());
 
-            string imgIds = "";
+            List<string> imgIds = new List<string>();
             foreach (var item in collection.CollectionItems)
             {
                 if (item.ImageId != null && item.ImageId != "")
-                {
-                    if (imgIds != "")
-                        imgIds += "&";
-
-                    imgIds += ("ids=" + item.ImageId);
-                }
+                    imgIds.Add(item.ImageId);
             }
 
             response = await _blobService.ImageRetrieveThumbs(imgIds);
@@ -153,7 +148,7 @@ namespace Listable.MVCWebApp.Controllers
             }
             else
             {
-                return View();
+                return View(viewModel);
             }
         }
 
@@ -213,7 +208,7 @@ namespace Listable.MVCWebApp.Controllers
             }
             else
             {
-                return View();
+                return View(viewModel);
             }
         }
 

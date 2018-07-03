@@ -4,7 +4,7 @@ namespace Listable.MVCWebApp.ViewModels.Collections
 {
     public class CreateCollectionViewModel
     {
-        [Required, MaxLength(30)]
+        [Required, MinLength(1), MaxLength(30)]
         public string Name { get; set; }
 
         [Display(Name = "Enable image uploads")]

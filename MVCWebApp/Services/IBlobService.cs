@@ -1,4 +1,5 @@
-﻿using System.Net.Http;
+﻿using System.Collections.Generic;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace Listable.MVCWebApp.Services
@@ -7,10 +8,10 @@ namespace Listable.MVCWebApp.Services
     {
         Task<HttpResponseMessage> ImageUpload(MultipartFormDataContent content);
 
-        Task<HttpResponseMessage> ImageDelete(string uriParams);
+        Task<HttpResponseMessage> ImageDelete(string imgId);
 
-        Task<HttpResponseMessage> ImageRetrieveUrl(string uriParams);
+        Task<HttpResponseMessage> ImageRetrieveUrl(string imgId);
 
-        Task<HttpResponseMessage> ImageRetrieveThumbs(string uriParams);
+        Task<HttpResponseMessage> ImageRetrieveThumbs(List<string> imgIds);
     }
 }

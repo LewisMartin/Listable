@@ -6,13 +6,13 @@ namespace Listable.MVCWebApp.Services
 {
     public interface ICollectionsService
     {
-        Task<HttpResponseMessage> Retrieve(string uriParams);
+        Task<HttpResponseMessage> Retrieve(string collectionId);
 
-        Task<HttpResponseMessage> RetrieveAll(string uriParams);
+        Task<HttpResponseMessage> RetrieveAll(string userId);
 
         Task<HttpResponseMessage> Create(Collection collection);
 
-        Task<HttpResponseMessage> Delete(string uriParams);
+        Task<HttpResponseMessage> Delete(string id);
 
         Task<HttpResponseMessage> CreateItem(string collectionId, CollectionItem item);
 

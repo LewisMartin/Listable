@@ -1,4 +1,5 @@
-﻿using System.Net.Http;
+﻿using System.Collections.Generic;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Distributed;
@@ -35,8 +36,20 @@ namespace Listable.MVCWebApp.Services
             return await APIRequest(BlobApiAction.ImageRetrieveUrl, "?id=" + imgId);
         }
 
-        public async Task<HttpResponseMessage> ImageRetrieveThumbs(string imgIds)
+        public async Task<HttpResponseMessage> ImageRetrieveThumbs(List<string> imgIds)
         {
+            string imageIds = "";
+            foreach (var id in imgIds)
+            {
+                if (id != null && id != "")
+                {
+                    if (imageIds != "")
+                        imageIds += "&";
+
+                    imageIds += ("ids=" + id);
+                }
+            }
+
             return await APIRequest(BlobApiAction.ImageRetrieveThumbs, "?" + imgIds);
         }
 
