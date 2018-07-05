@@ -13,23 +13,19 @@ using Listable.MVCWebApp.ViewModels.Collections;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
-namespace Listable.MVCWebApp.Tests
+namespace Listable.MVCWebApp.Tests.Controllers
 {
     [TestFixture]
-    public class CollectionsControllerTests
+    public class CollectionsControllerTests : ControllerTestBase<CollectionsController>
     {
-        protected ControllerContext _MockControllerContext;
         protected MockBlobService _MockBlobService;
         protected MockCollectionsService _MockCollectionsService;
 
-        protected CollectionsController _Controller;
-
-        public CollectionsControllerTests() { }
+        public CollectionsControllerTests() : base() { }
 
         [SetUp]
-        public void SetUp()
+        public override void SetUp()
         {
-            CreateMockHttpContext();
             _MockBlobService = new MockBlobService();
             _MockCollectionsService = new MockCollectionsService();
 
@@ -41,9 +37,9 @@ namespace Listable.MVCWebApp.Tests
         public void Authorize_Attribute_Exists()
         {
             // Arrange:
+            Type type = _Controller.GetType();
 
             // Act:
-            Type type = _Controller.GetType();
             var attributes = type.GetCustomAttributes(typeof(AuthorizeAttribute), true);
 
             // Assert:
@@ -64,7 +60,7 @@ namespace Listable.MVCWebApp.Tests
         }
 
         [Test]
-        public void Overview_GET_ReturnsAViewResult_WithAListOfCollections()
+        public void Overview_GET_ReturnsAViewResult_WithOverviewViewModel()
         {
             // Arrange:
 
@@ -181,13 +177,15 @@ namespace Listable.MVCWebApp.Tests
         public void DeleteCollection_POST_ReturnsARedirectToOverviewAcrion_WhenModelStateIsValid()
         {
             // Arrange:
+            var model = new DeleteCollectionViewModel()
+            {
+                SelectedCollection = "1",
+                Collections = new List<SelectListItem>()
+            };
 
             // Act:
-            var result = _Controller.DeleteCollection(new DeleteCollectionViewModel()
-            {
-                SelectedCollection = null,
-                Collections = new List<SelectListItem>()
-            }).Result as RedirectToActionResult;
+            SimulateValidation(model);
+            var result = _Controller.DeleteCollection(model).Result as RedirectToActionResult;
 
             // Assert
             Assert.IsNotNull(result);
@@ -211,39 +209,6 @@ namespace Listable.MVCWebApp.Tests
             // Assert
             Assert.IsNotNull(result);
             Assert.IsInstanceOf<DeleteCollectionViewModel>(result.Model);
-        }
-
-        private void CreateMockHttpContext()
-        {
-            var MockHttpContext = new Mock<HttpContext>();
-            MockHttpContext.Setup(t => t.User).Returns(CreateMockUser());
-
-            _MockControllerContext = new ControllerContext();
-            _MockControllerContext.HttpContext = MockHttpContext.Object;
-        }
-
-        private ClaimsPrincipal CreateMockUser()
-        {
-            IList<Claim> MockClaims = new List<Claim>
-            {
-                new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name", "TestUser")
-            };
-
-            var Identity = new ClaimsIdentity(MockClaims, "TestAuthType");
-
-            return new ClaimsPrincipal(Identity);
-        }
-
-        private void SimulateValidation(object model)
-        {
-            // mimic the behaviour of the model binder which is responsible for Validating the Model
-            var validationContext = new ValidationContext(model, null, null);
-            var validationResults = new List<ValidationResult>();
-            Validator.TryValidateObject(model, validationContext, validationResults, true);
-            foreach (var validationResult in validationResults)
-            {
-                _Controller.ModelState.AddModelError(validationResult.MemberNames.First(), validationResult.ErrorMessage);
-            }
         }
     }
 }

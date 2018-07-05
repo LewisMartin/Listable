@@ -1,6 +1,5 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 using System.Net.Http;
 using Listable.MVCWebApp.Services;
 using System.Collections.Generic;
@@ -178,38 +177,45 @@ namespace Listable.MVCWebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteItem(DeleteItemViewModel viewModel)
         {
-            var response = await _collectionsService.Retrieve(viewModel.CollectionId);
-            if (!response.IsSuccessStatusCode)
-                return RedirectToAction("Error", "Home");
-
-            var collection = JsonConvert.DeserializeObject<Collection>(await response.Content.ReadAsStringAsync());
-
-            var itemIds = new List<string>();
-            var imageIds = new List<string>();
-            foreach (var item in viewModel.DeleteItemOptions)
+            if (ModelState.IsValid)
             {
-                if (item.IsOptionSelected)
-                {
-                    itemIds.Add(item.ItemId);
-                    imageIds.Add(collection.CollectionItems.Where(i => i.Id.ToString() == item.ItemId).FirstOrDefault().ImageId);
-                }
-            }
+                var response = await _collectionsService.Retrieve(viewModel.CollectionId);
+                if (!response.IsSuccessStatusCode)
+                    return RedirectToAction("Error", "Home");
 
-            if (collection.ImageEnabled)
+                var collection = JsonConvert.DeserializeObject<Collection>(await response.Content.ReadAsStringAsync());
+
+                var itemIds = new List<string>();
+                var imageIds = new List<string>();
+                foreach (var item in viewModel.DeleteItemOptions)
+                {
+                    if (item.IsOptionSelected)
+                    {
+                        itemIds.Add(item.ItemId);
+                        imageIds.Add(collection.CollectionItems.Where(i => i.Id.ToString() == item.ItemId).FirstOrDefault().ImageId);
+                    }
+                }
+
+                if (collection.ImageEnabled)
+                {
+                    foreach (var imageId in imageIds)                   // delete media
+                    {
+                        if (!_blobService.ImageDelete(imageId).Result.IsSuccessStatusCode)
+                            return RedirectToAction("Error", "Home");
+                    }
+                }
+
+                var content = JsonConvert.SerializeObject(itemIds);     // delete items
+
+                if (!_collectionsService.DeleteItem(viewModel.CollectionId, content).Result.IsSuccessStatusCode)
+                    return RedirectToAction("Error", "Home");
+
+                return RedirectToAction("Collection", "Collections", new { collectionId = viewModel.CollectionId });
+            }
+            else
             {
-                foreach (var imageId in imageIds)                   // delete media
-                {
-                    if (!_blobService.ImageDelete(imageId).Result.IsSuccessStatusCode)
-                        return RedirectToAction("Error", "Home");
-                }
+                return View(viewModel);
             }
-
-            var content = JsonConvert.SerializeObject(itemIds);     // delete items
-
-            if (!_collectionsService.DeleteItem(viewModel.CollectionId, content).Result.IsSuccessStatusCode)
-                return RedirectToAction("Error", "Home");
-
-            return RedirectToAction("Collection", "Collections", new { collectionId = viewModel.CollectionId });
         }
     }
 }

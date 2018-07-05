@@ -1,9 +1,6 @@
-﻿using System.Diagnostics;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Listable.MVCWebApp.Models;
-using Microsoft.Extensions.Configuration;
 using Listable.MVCWebApp.Services;
 using System.Collections.Generic;
 using Listable.CollectionMicroservice.DTO;
@@ -12,7 +9,6 @@ using Newtonsoft.Json;
 using System;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.AspNetCore.Http;
 using System.Text.RegularExpressions;
 
 namespace Listable.MVCWebApp.Controllers

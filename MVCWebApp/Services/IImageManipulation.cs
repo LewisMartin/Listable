@@ -4,9 +4,9 @@ namespace Listable.MVCWebApp.Services
 {
     public interface IImageManipulation
     {
-        ImageManipulation LoadFile(IFormFile image);
+        IImageManipulation LoadFile(IFormFile image);
 
-        ImageManipulation Resize(int targetWidth);
+        IImageManipulation Resize(int targetWidth);
 
         IFormFile Retrieve();
     }

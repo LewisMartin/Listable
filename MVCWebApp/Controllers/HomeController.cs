@@ -12,12 +12,8 @@ namespace Listable.MVCWebApp.Controllers
     public class HomeController : Controller
     {
         private static readonly HttpClient Client = new HttpClient();
-        private readonly IDistributedCache _cache;
 
-        public HomeController(IDistributedCache cache)
-        {
-            _cache = cache;
-        }
+        public HomeController() { }
 
         public ActionResult Index()
         {

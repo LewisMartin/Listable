@@ -13,11 +13,11 @@ namespace Listable.MVCWebApp.Tests.Mocks
 {
     public class MockCollectionsService : ICollectionsService
     {
-        private List<Collection> _DummyCollections;
+        public List<Collection> DummyCollections { get; private set; }
 
         public MockCollectionsService()
         {
-            _DummyCollections = SetDummyCollections();
+            DummyCollections = SetDummyCollections();
         }
 
         public Task<HttpResponseMessage> Create(Collection collection)
@@ -45,7 +45,7 @@ namespace Listable.MVCWebApp.Tests.Mocks
             return Task.FromResult(new HttpResponseMessage()
             {
                 StatusCode = System.Net.HttpStatusCode.OK,
-                Content = new StringContent(JsonConvert.SerializeObject(_DummyCollections.FirstOrDefault(c => c.Id == collectionId)))
+                Content = new StringContent(JsonConvert.SerializeObject(DummyCollections.FirstOrDefault(c => c.Id == collectionId)))
             });
         }
 
@@ -54,7 +54,7 @@ namespace Listable.MVCWebApp.Tests.Mocks
             return Task.FromResult(new HttpResponseMessage()
             {
                 StatusCode = System.Net.HttpStatusCode.OK,
-                Content = new StringContent(JsonConvert.SerializeObject(_DummyCollections))
+                Content = new StringContent(JsonConvert.SerializeObject(DummyCollections))
             });
         }
 

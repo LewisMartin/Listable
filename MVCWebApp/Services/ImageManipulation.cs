@@ -16,7 +16,7 @@ namespace Listable.MVCWebApp.Services
 
         public ImageManipulation() { }
 
-        public ImageManipulation LoadFile(IFormFile image)
+        public IImageManipulation LoadFile(IFormFile image)
         {
             _sourceImage = Image.FromStream(image.OpenReadStream());
             _fileName = ContentDispositionHeaderValue.Parse(image.ContentDisposition).FileName;
@@ -24,7 +24,7 @@ namespace Listable.MVCWebApp.Services
             return this;
         }
 
-        public ImageManipulation Resize(int targetWidth)
+        public IImageManipulation Resize(int targetWidth)
         {
             if (_sourceImage != null)
             {
