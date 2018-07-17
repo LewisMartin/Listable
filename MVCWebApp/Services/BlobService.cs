@@ -50,7 +50,7 @@ namespace Listable.MVCWebApp.Services
                 }
             }
 
-            return await APIRequest(BlobApiAction.ImageRetrieveThumbs, "?" + imgIds);
+            return await APIRequest(BlobApiAction.ImageRetrieveThumbs, "?" + imageIds);
         }
 
         protected override async Task<HttpResponseMessage> APIRequest(BlobApiAction action, string uriParams = "", HttpContent content = null)
