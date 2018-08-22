@@ -9,29 +9,32 @@ namespace Listable.BlobMicroservice.Tests.Mocks
 {
     public class MockImageStore : IImageStore
     {
-        public Task<bool> DeleteImage(string imageId)
+        public async Task<bool> DeleteImage(string imageId)
         {
-            throw new NotImplementedException();
+            return true;
         }
 
-        public Task<bool> DeleteThumb(string imageId)
+        public async Task<bool> DeleteThumb(string imageId)
         {
-            throw new NotImplementedException();
+            return true;
         }
 
         public string GetUri(string imageId)
         {
-            throw new NotImplementedException();
+            return "http://localhost/" + imageId;
         }
 
         public Dictionary<string, string> MapThumbnailUris(string[] imageIds)
         {
-            throw new NotImplementedException();
+            return new Dictionary<string, string>()
+            {
+                { "1", "http://localhost/1" }
+            };
         }
 
-        public Task<string> SaveImage(Stream stream)
+        public async Task<string> SaveImage(Stream stream)
         {
-            throw new NotImplementedException();
+            return Guid.NewGuid().ToString();
         }
     }
 }
