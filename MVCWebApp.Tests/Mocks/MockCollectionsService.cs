@@ -30,6 +30,11 @@ namespace Listable.MVCWebApp.Tests.Mocks
             return Task.FromResult(new HttpResponseMessage() { StatusCode = System.Net.HttpStatusCode.OK });
         }
 
+        public Task<HttpResponseMessage> Update(Collection collection)
+        {
+            return Task.FromResult(new HttpResponseMessage() { StatusCode = System.Net.HttpStatusCode.OK });
+        }
+
         public Task<HttpResponseMessage> Delete(string id)
         {
             return Task.FromResult(new HttpResponseMessage() { StatusCode = System.Net.HttpStatusCode.OK });

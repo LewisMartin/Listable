@@ -6,11 +6,8 @@ using Listable.MVCWebApp.Controllers;
 using System.Linq;
 using Microsoft.AspNetCore.Authorization;
 using Listable.MVCWebApp.Tests.Mocks;
-using Microsoft.AspNetCore.Http;
-using System.Security.Claims;
 using System.Collections.Generic;
 using Listable.MVCWebApp.ViewModels.Collections;
-using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Listable.MVCWebApp.Tests.Controllers
@@ -121,6 +118,7 @@ namespace Listable.MVCWebApp.Tests.Controllers
 
             // Assert
             Assert.IsNotNull(result);
+            Assert.IsInstanceOf<CreateCollectionViewModel>(result.Model);
         }
 
         [Test]
@@ -131,9 +129,12 @@ namespace Listable.MVCWebApp.Tests.Controllers
             // Act:
             var result = _Controller.CreateCollection(new CreateCollectionViewModel()
             {
-                Name = "New collection",
-                IsImageEnabled = false,
-                GridDisplay = false
+                CollectionDetails = new CollectionEditor()
+                {
+                    Name = "New collection",
+                    IsImageEnabled = false,
+                    GridDisplay = false
+                }
             }).Result as RedirectToActionResult;
 
             // Assert
@@ -147,9 +148,7 @@ namespace Listable.MVCWebApp.Tests.Controllers
             // Arrange:
             var model = new CreateCollectionViewModel()
             {
-                Name = null,
-                IsImageEnabled = false,
-                GridDisplay = false
+                CollectionDetails = null
             };
 
             // Act:
@@ -159,6 +158,65 @@ namespace Listable.MVCWebApp.Tests.Controllers
             // Assert
             Assert.IsNotNull(result);
             Assert.IsInstanceOf<CreateCollectionViewModel>(result.Model);
+        }
+
+        [Test]
+        public void EditCollection_GET_ReturnsAViewResult()
+        {
+            // Arrange:
+
+            // Act:
+            var result = _Controller.EditCollection("1").Result as ViewResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.IsInstanceOf<EditCollectionViewModel>(result.Model);
+        }
+
+        [Test]
+        public void EditCollection_POST_ReturnsARedirectToOverviewAction_WhenModelStateIsValid()
+        {
+            // Arrange:
+
+            // Act:
+            var result = _Controller.EditCollection(new EditCollectionViewModel()
+            {
+                CollectionId = "1",
+                CollectionDetails = new CollectionEditor()
+                {
+                    Name = "Updated Collection",
+                    IsImageEnabled = true,
+                    GridDisplay = false
+                }
+            }).Result as RedirectToActionResult;
+
+            // Assert:
+            Assert.IsNotNull(result);
+            Assert.AreEqual("Overview", result.ActionName);
+        }
+
+        [Test]
+        public void EditCollection_POST_ReturnsAViewResult_WhenModelStateIsInvalid()
+        {
+            // Arrange:
+            var model = new EditCollectionViewModel()
+            {
+                CollectionId = null,
+                CollectionDetails = new CollectionEditor()
+                {
+                    Name = null,
+                    IsImageEnabled = false,
+                    GridDisplay = false
+                }
+            };
+
+            // Act:
+            SimulateValidation(model);
+            var result = _Controller.EditCollection(model).Result as ViewResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.IsInstanceOf<EditCollectionViewModel>(result.Model);
         }
 
         [Test]
