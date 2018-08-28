@@ -7,7 +7,7 @@
 <div class="listable-collections-container">
     <div class="listable-collections-title">
         @Model.CollectionName
-        <div class="lc-title-button"><i class="fa fa-edit" aria-hidden="true"></i></div>
+        <a href="@Url.Action("EditCollection", "Collections", new { collectionId = Model.CollectionId }, null)"><div class="lc-title-button"><i class="fa fa-edit" aria-hidden="true"></i></div></a>
     </div>
     <div class="listable-collections-list">
         <ul>

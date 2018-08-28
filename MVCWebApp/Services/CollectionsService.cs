@@ -41,6 +41,11 @@ namespace Listable.MVCWebApp.Services
             return await APIRequest(CollectionsApiAction.Create, "", new StringContent(JsonConvert.SerializeObject(collection).ToString(), Encoding.UTF8, "application/json"));
         }
 
+        public async Task<HttpResponseMessage> Update(Collection collection)
+        {
+            return await APIRequest(CollectionsApiAction.Update, ("?id=" + collection.Id), new StringContent(JsonConvert.SerializeObject(collection).ToString(), Encoding.UTF8, "application/json"));
+        }
+
         public async Task<HttpResponseMessage> Delete(string id)
         {
             return await APIRequest(CollectionsApiAction.Delete, "?id=" + id);
@@ -60,7 +65,7 @@ namespace Listable.MVCWebApp.Services
         {
             var req = FormAPIRequestMessage(action, uriParams);
 
-            if (action == CollectionsApiAction.Create || action == CollectionsApiAction.CreateItem || action == CollectionsApiAction.DeleteItem)
+            if (action == CollectionsApiAction.Create || action == CollectionsApiAction.Update || action == CollectionsApiAction.CreateItem || action == CollectionsApiAction.DeleteItem)
                 req.Content = content;
 
             string accessToken = await GetAccessTokenAsync(ListableAPI.CollectionAPI);

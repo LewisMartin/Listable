@@ -119,7 +119,7 @@ namespace Listable.MVCWebApp.Controllers
         [HttpGet]
         public IActionResult CreateCollection()
         {
-            return View();
+            return View(new CreateCollectionViewModel());
         }
 
         [HttpPost]
@@ -130,10 +130,10 @@ namespace Listable.MVCWebApp.Controllers
             {
                 Collection collection = new Collection()
                 {
-                    Name = viewModel.Name,
+                    Name = viewModel.CollectionDetails.Name,
                     Owner = GetUserUniqueName(),
-                    ImageEnabled = viewModel.IsImageEnabled,
-                    DisplayFormat = viewModel.IsImageEnabled ? (viewModel.GridDisplay == true ? CollectionDisplayFormat.Grid : CollectionDisplayFormat.List) : CollectionDisplayFormat.List,
+                    ImageEnabled = viewModel.CollectionDetails.IsImageEnabled,
+                    DisplayFormat = viewModel.CollectionDetails.IsImageEnabled ? (viewModel.CollectionDetails.GridDisplay == true ? CollectionDisplayFormat.Grid : CollectionDisplayFormat.List) : CollectionDisplayFormat.List,
                     CollectionItems = new List<CollectionItem>()
                 };
 
@@ -146,6 +146,53 @@ namespace Listable.MVCWebApp.Controllers
             {
                 return View(viewModel);
             }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> EditCollection(string collectionId)
+        {
+            var response = await _collectionsService.Retrieve(collectionId);
+            if (!response.IsSuccessStatusCode)
+                return RedirectToAction("Error", "Home");
+
+            var collection = JsonConvert.DeserializeObject<Collection>(await response.Content.ReadAsStringAsync());
+
+            return View(new EditCollectionViewModel()
+            {
+                CollectionId = collection.Id,
+                CollectionDetails = new CollectionEditor()
+                {
+                    Name = collection.Name,
+                    IsImageEnabled = collection.ImageEnabled,
+                    GridDisplay = collection.DisplayFormat == CollectionDisplayFormat.Grid ? true : false
+                }
+            });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> EditCollection(EditCollectionViewModel viewModel)
+        {
+            if (ModelState.IsValid)
+            {
+                var response = await _collectionsService.Retrieve(viewModel.CollectionId);
+                if (!response.IsSuccessStatusCode)
+                    return RedirectToAction("Error", "Home");
+
+                var collection = JsonConvert.DeserializeObject<Collection>(await response.Content.ReadAsStringAsync());
+
+                collection.Name = viewModel.CollectionDetails.Name;
+                collection.ImageEnabled = viewModel.CollectionDetails.IsImageEnabled;
+                collection.DisplayFormat = viewModel.CollectionDetails.GridDisplay == true ? CollectionDisplayFormat.Grid : CollectionDisplayFormat.List;
+
+                if (!_collectionsService.Update(collection).Result.IsSuccessStatusCode)
+                    return RedirectToAction("Error", "Home");
+            }
+            else
+            {
+                return View(viewModel);
+            }
+
+            return RedirectToAction("Overview");
         }
 
         [HttpGet]

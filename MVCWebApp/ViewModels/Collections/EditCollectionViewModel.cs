@@ -2,12 +2,15 @@
 
 namespace Listable.MVCWebApp.ViewModels.Collections
 {
-    public class CreateCollectionViewModel
+    public class EditCollectionViewModel
     {
-        public CreateCollectionViewModel()
+        public EditCollectionViewModel()
         {
             CollectionDetails = new CollectionEditor();
         }
+
+        [Required]
+        public string CollectionId { get; set; }
 
         [Required]
         public CollectionEditor CollectionDetails { get; set; }

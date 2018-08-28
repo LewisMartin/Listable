@@ -1,0 +1,21 @@
+﻿@model Listable.MVCWebApp.ViewModels.Collections.CollectionEditor
+
+<div class="listable-collections-form">
+    <form method="post" id="createcollection">
+        <label asp-for="Name"></label>
+        <input asp-for="Name" />
+        <div class="lc-checkbox-field">
+            <label asp-for="@Model.IsImageEnabled"></label>
+            <input asp-for="@Model.IsImageEnabled" type="checkbox" id="ImageEnabledCheckbox" />
+        </div>
+        <div class="lc-checkbox-field">
+            <label asp-for="@Model.GridDisplay"></label>
+            <input asp-for="@Model.GridDisplay" type="checkbox" id="GridDisplayCheckbox" disabled />
+        </div>
+    </form>
+</div>
+<div class="listable-collections-btns">
+    <button type="submit" form="createcollection" class="fl-right"><i class="fa fa-check" aria-hidden="true"></i></button>
+    <a href="@Url.Action("Overview", "Collections", null, null)"><div><span><i class="fa fa-arrow-left" aria-hidden="true"></i></span></div></a>
+</div>
+<div asp-validation-summary="All"></div>

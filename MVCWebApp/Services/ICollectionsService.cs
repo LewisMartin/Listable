@@ -12,6 +12,8 @@ namespace Listable.MVCWebApp.Services
 
         Task<HttpResponseMessage> Create(Collection collection);
 
+        Task<HttpResponseMessage> Update(Collection collection);
+
         Task<HttpResponseMessage> Delete(string id);
 
         Task<HttpResponseMessage> CreateItem(string collectionId, CollectionItem item);

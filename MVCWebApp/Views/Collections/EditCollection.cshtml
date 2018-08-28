@@ -1,12 +1,12 @@
-﻿@model Listable.MVCWebApp.ViewModels.Collections.CreateCollectionViewModel
+﻿@model Listable.MVCWebApp.ViewModels.Collections.EditCollectionViewModel
 
 @{
-    ViewData["Title"] = "Create collection";
+    ViewData["Title"] = "Edit Collection";
 }
 
 <div class="listable-collections-container">
     <div class="listable-collections-title">
-        Create new collection
+        Edit collection
     </div>
     @Html.EditorFor(m => m.CollectionDetails)
 </div>
