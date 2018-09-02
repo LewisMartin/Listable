@@ -1,4 +1,4 @@
-﻿@model Listable.MVCWebApp.ViewModels.Collections.CreateItemViewModel
+﻿@model Listable.MVCWebApp.ViewModels.Collections.EditItemViewModel
 
 @{
     ViewData["Title"] = "CreateItem";
@@ -6,8 +6,9 @@
 
 <div class="listable-collections-container">
     <div class="listable-collections-title">
-        @Model.CollectionName > New Item
+        @Model.CollectionName > Edit Item
     </div>
+    <input asp-for="ItemId" hidden />
     @Html.EditorFor(m => m.ItemDetails)
 </div>
 

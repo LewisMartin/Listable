@@ -16,6 +16,7 @@ namespace Listable.MVCWebApp.Services
         Create,
         CreateItem,
         Update,
+        UpdateItem,
         Delete,
         DeleteItem
     }
@@ -56,6 +57,11 @@ namespace Listable.MVCWebApp.Services
             return await APIRequest(CollectionsApiAction.CreateItem, ("?collectionId=" + collectionId), new StringContent(JsonConvert.SerializeObject(item).ToString(), Encoding.UTF8, "application/json"));
         }
 
+        public async Task<HttpResponseMessage> UpdateItem(string collectionId, CollectionItem item)
+        {
+            return await APIRequest(CollectionsApiAction.UpdateItem, ("?collectionId=" + collectionId), new StringContent(JsonConvert.SerializeObject(item).ToString(), Encoding.UTF8, "application/json"));
+        }
+
         public async Task<HttpResponseMessage> DeleteItem(string collectionId, string content)
         {
             return await APIRequest(CollectionsApiAction.DeleteItem, ("?collectionId=" + collectionId), new StringContent(content, Encoding.UTF8, "application/json"));
@@ -65,7 +71,7 @@ namespace Listable.MVCWebApp.Services
         {
             var req = FormAPIRequestMessage(action, uriParams);
 
-            if (action == CollectionsApiAction.Create || action == CollectionsApiAction.Update || action == CollectionsApiAction.CreateItem || action == CollectionsApiAction.DeleteItem)
+            if (action == CollectionsApiAction.Create || action == CollectionsApiAction.Update || action == CollectionsApiAction.UpdateItem || action == CollectionsApiAction.CreateItem || action == CollectionsApiAction.DeleteItem)
                 req.Content = content;
 
             string accessToken = await GetAccessTokenAsync(ListableAPI.CollectionAPI);
@@ -88,6 +94,8 @@ namespace Listable.MVCWebApp.Services
                     return new HttpRequestMessage(HttpMethod.Post, (_configuration["CollectionAPI:APIEndpoint"] + "/createitem" + uriParams));
                 case CollectionsApiAction.Update:
                     return new HttpRequestMessage(HttpMethod.Put, (_configuration["CollectionAPI:APIEndpoint"] + "/update" + uriParams));
+                case CollectionsApiAction.UpdateItem:
+                    return new HttpRequestMessage(HttpMethod.Put, (_configuration["CollectionAPI:APIEndpoint"] + "/updateitem" + uriParams));
                 case CollectionsApiAction.Delete:
                     return new HttpRequestMessage(HttpMethod.Delete, (_configuration["CollectionAPI:APIEndpoint"] + "/delete" + uriParams));
                 case CollectionsApiAction.DeleteItem:

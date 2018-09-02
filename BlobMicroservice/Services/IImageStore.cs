@@ -8,6 +8,8 @@ namespace Listable.BlobMicroservice.Services
     {
         Task<string> SaveImage(Stream stream);
 
+        Task<string> SaveImage(Stream stream, string imageId);
+
         Task<bool> DeleteImage(string imageId);
 
         Task<bool> DeleteThumb(string imageId);

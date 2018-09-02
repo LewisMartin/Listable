@@ -24,7 +24,11 @@ namespace Listable.BlobMicroservice.Services
 
         public async Task<string> SaveImage(Stream stream)
         {
-            var imageId = Guid.NewGuid().ToString();
+            return await SaveImage(stream, Guid.NewGuid().ToString());
+        }
+
+        public async Task<string> SaveImage(Stream stream, string imageId)
+        {
             var container = _blobClient.GetContainerReference("images");
             var blob = container.GetBlockBlobReference(imageId);
             await blob.UploadFromStreamAsync(stream);
@@ -36,19 +40,29 @@ namespace Listable.BlobMicroservice.Services
         {
             var container = _blobClient.GetContainerReference("images");
             var blob = container.GetBlockBlobReference(imageId);
-            bool success = await blob.DeleteIfExistsAsync();
 
-            if (success)
-                return await DeleteThumb(imageId);
-            else
-                return success;
+            if (blob.ExistsAsync().Result)
+            {
+                if (blob.DeleteIfExistsAsync().Result)
+                {
+                    return await DeleteThumb(imageId);
+                }
+                else
+                    return false;
+            }
+
+            return true;
         }
 
         public async Task<bool> DeleteThumb(string imageId)
         {
             var container = _blobClient.GetContainerReference("thumbs");
             var blob = container.GetBlockBlobReference("sm-" + imageId);
-            return await blob.DeleteIfExistsAsync();
+
+            if (blob.ExistsAsync().Result)
+                return await blob.DeleteIfExistsAsync();
+            else
+                return true;
         }
 
         public string GetUri(string imageId)

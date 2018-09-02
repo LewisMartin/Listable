@@ -10,6 +10,7 @@ using System;
 using System.Linq;
 using System.Net.Http.Headers;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 
 namespace Listable.MVCWebApp.Controllers
 {
@@ -60,6 +61,7 @@ namespace Listable.MVCWebApp.Controllers
             {
                 CollectionId = collection.Id,
                 CollectionName = collection.Name,
+                Id = item.Id.ToString(),
                 Name = item.Name,
                 Description = item.Description,
                 ImageEnabled = collection.ImageEnabled,
@@ -78,9 +80,12 @@ namespace Listable.MVCWebApp.Controllers
 
             return View(new CreateItemViewModel()
             {
-                CollectionId = collection.Id,
                 CollectionName = collection.Name,
-                ImageEnabled = collection.ImageEnabled
+                ItemDetails = new ItemEditor()
+                {
+                    CollectionId = collection.Id,
+                    ImageEnabled = collection.ImageEnabled
+                }
             });
         }
 
@@ -92,32 +97,9 @@ namespace Listable.MVCWebApp.Controllers
             {
                 string imgId = "";
 
-                if (viewModel.ImageFile != null && viewModel.ImageFile.Length > 0)
+                if (viewModel.ItemDetails.ImageFile != null && viewModel.ItemDetails.ImageFile.Length > 0)
                 {
-                    string ImageContentType = viewModel.ImageFile.ContentType;
-                    var fileName = ContentDispositionHeaderValue.Parse(viewModel.ImageFile.ContentDisposition).FileName;
-
-                    if (viewModel.ImageFile.Length > 100000)
-                    {
-                        viewModel.ImageFile = _imageManipulation.LoadFile(viewModel.ImageFile).Resize(600).Retrieve();
-                        ImageContentType = "image/jpg";
-                    }
-
-                    var content = new MultipartFormDataContent
-                    {
-                        {
-                            new StreamContent(viewModel.ImageFile.OpenReadStream())
-                            {
-                                Headers =
-                                {
-                                    ContentLength = viewModel.ImageFile.Length,
-                                    ContentType = new MediaTypeHeaderValue(ImageContentType)
-                                }
-                            },
-                            "image",
-                            fileName
-                        }
-                    };
+                    var content = FormImageContent(viewModel.ItemDetails.ImageFile);
 
                     var response = await _blobService.ImageUpload(content);
                     if (!response.IsSuccessStatusCode)
@@ -129,20 +111,96 @@ namespace Listable.MVCWebApp.Controllers
                 CollectionItem item = new CollectionItem()
                 {
                     Id = Guid.NewGuid(),
-                    Name = viewModel.Name,
-                    Description = viewModel.Description,
+                    Name = viewModel.ItemDetails.Name,
+                    Description = viewModel.ItemDetails.Description,
                     ImageId = imgId
                 };
 
-                if (!_collectionsService.CreateItem(viewModel.CollectionId, item).Result.IsSuccessStatusCode)
+                if (!_collectionsService.CreateItem(viewModel.ItemDetails.CollectionId, item).Result.IsSuccessStatusCode)
                     return RedirectToAction("Error", "Home");
 
-                return RedirectToAction("Collection", "Collections", new { collectionId = viewModel.CollectionId });
+                return RedirectToAction("Collection", "Collections", new { collectionId = viewModel.ItemDetails.CollectionId });
             }
             else
             {
                 return View(viewModel);
             }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> EditItem(string collectionId, string itemId)
+        {
+            var response = await _collectionsService.Retrieve(collectionId);
+            if (!response.IsSuccessStatusCode)
+                return RedirectToAction("Error", "Home");
+
+            var collection = JsonConvert.DeserializeObject<Collection>(await response.Content.ReadAsStringAsync());
+            var item = collection.CollectionItems.Where(i => i.Id.ToString() == itemId).First();
+
+            return View(new EditItemViewModel()
+            {
+                CollectionName = collection.Name,
+                ItemId = itemId,
+                ItemDetails = new ItemEditor()
+                {
+                    CollectionId = collection.Id,
+                    ImageEnabled = collection.ImageEnabled,
+                    Name = item.Name,
+                    Description = item.Description
+                }
+            });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditItem(EditItemViewModel viewModel)
+        {
+            if (ModelState.IsValid)
+            {
+                var response = await _collectionsService.Retrieve(viewModel.ItemDetails.CollectionId);
+                if (!response.IsSuccessStatusCode)
+                    return RedirectToAction("Error", "Home");
+
+                var collection = JsonConvert.DeserializeObject<Collection>(await response.Content.ReadAsStringAsync());
+                var item = collection.CollectionItems.Where(i => i.Id.ToString() == viewModel.ItemId).First();
+
+                string imgId = item.ImageId;
+
+                if (viewModel.ItemDetails.ImageFile != null && viewModel.ItemDetails.ImageFile.Length > 0)
+                {
+                    var content = FormImageContent(viewModel.ItemDetails.ImageFile);
+
+                    if(imgId == null || imgId == "")
+                    {
+                        response = await _blobService.ImageUpload(content);
+                        imgId = JsonConvert.DeserializeObject<string>(await response.Content.ReadAsStringAsync());
+                    }
+                    else
+                    {
+                        response = await _blobService.ImageUpdate(imgId, content);
+                    }   
+
+                    if (!response.IsSuccessStatusCode)
+                        return RedirectToAction("Error", "Home");
+                }
+
+                CollectionItem updatedItem = new CollectionItem()
+                {
+                    Id = new Guid(viewModel.ItemId),
+                    Name = viewModel.ItemDetails.Name,
+                    Description = viewModel.ItemDetails.Description,
+                    ImageId = imgId
+                };
+
+                if (!_collectionsService.UpdateItem(viewModel.ItemDetails.CollectionId, updatedItem).Result.IsSuccessStatusCode)
+                    return RedirectToAction("Error", "Home");
+
+                return RedirectToAction("Collection", "Collections", new { collectionId = viewModel.ItemDetails.CollectionId });
+            }
+            else
+            {
+                return View(viewModel);
+            }       
         }
 
         [HttpGet]
@@ -192,7 +250,11 @@ namespace Listable.MVCWebApp.Controllers
                     if (item.IsOptionSelected)
                     {
                         itemIds.Add(item.ItemId);
-                        imageIds.Add(collection.CollectionItems.Where(i => i.Id.ToString() == item.ItemId).FirstOrDefault().ImageId);
+
+                        string itemImgId = collection.CollectionItems.Where(i => i.Id.ToString() == item.ItemId).FirstOrDefault().ImageId;
+
+                        if(itemImgId != null && itemImgId != "")
+                            imageIds.Add(itemImgId);
                     }
                 }
 
@@ -216,6 +278,34 @@ namespace Listable.MVCWebApp.Controllers
             {
                 return View(viewModel);
             }
+        }
+
+        private MultipartFormDataContent FormImageContent(IFormFile imageFile)
+        {
+            string ImageContentType = imageFile.ContentType;
+            var fileName = ContentDispositionHeaderValue.Parse(imageFile.ContentDisposition).FileName;
+
+            if (imageFile.Length > 100000)
+            {
+                imageFile = _imageManipulation.LoadFile(imageFile).Resize(600).Retrieve();
+                ImageContentType = "image/jpg";
+            }
+
+            return new MultipartFormDataContent
+            {
+                {
+                    new StreamContent(imageFile.OpenReadStream())
+                    {
+                        Headers =
+                        {
+                            ContentLength = imageFile.Length,
+                            ContentType = new MediaTypeHeaderValue(ImageContentType)
+                        }
+                    },
+                    "image",
+                    fileName
+                }
+            };
         }
     }
 }

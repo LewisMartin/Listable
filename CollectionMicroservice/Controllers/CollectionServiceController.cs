@@ -123,6 +123,27 @@ namespace Listable.CollectionMicroservice.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError);
         }
 
+        [HttpPut]
+        public IActionResult UpdateItem(string collectionId, [FromBody] CollectionItem item)
+        {
+            System.Diagnostics.Debugger.Break();
+
+            if (collectionId == null || collectionId == "" || item == null)
+                return BadRequest();
+
+            var collection = _collectionStore.GetCollection(collectionId);
+            var existingItem = collection.CollectionItems.Where(i => i.Id == item.Id).First();
+
+            existingItem.Name = item.Name;
+            existingItem.Description = item.Description;
+            existingItem.ImageId = item.ImageId;
+
+            if (_collectionStore.UpdateCollection(collectionId, collection))
+                return Ok();
+            else
+                return StatusCode(StatusCodes.Status500InternalServerError);
+        }
+
         [HttpPost]
         public IActionResult DeleteItem(string collectionId, [FromBody] List<string> itemIds)
         {

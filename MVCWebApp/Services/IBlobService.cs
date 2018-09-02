@@ -8,6 +8,8 @@ namespace Listable.MVCWebApp.Services
     {
         Task<HttpResponseMessage> ImageUpload(MultipartFormDataContent content);
 
+        Task<HttpResponseMessage> ImageUpdate(string imgId, MultipartFormDataContent content);
+
         Task<HttpResponseMessage> ImageDelete(string imgId);
 
         Task<HttpResponseMessage> ImageRetrieveUrl(string imgId);

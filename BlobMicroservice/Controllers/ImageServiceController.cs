@@ -37,6 +37,33 @@ namespace Listable.BlobMicroservice.Controllers
             }
         }
 
+        [HttpPut]
+        public async Task<IActionResult> Update(string id, IFormFile image)
+        {
+            if (id == null || id == "" || image == null)
+                return BadRequest();
+
+            try
+            {
+                if (await _imageStore.DeleteImage(id))
+                {
+                    using (var stream = image.OpenReadStream())
+                    {
+                        var imageId = await _imageStore.SaveImage(stream, id);
+
+                        if (imageId == id)
+                            return StatusCode(StatusCodes.Status200OK);
+                    }
+                }
+
+                return StatusCode(StatusCodes.Status500InternalServerError);
+            }
+            catch
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError);
+            }
+        }
+
         [HttpGet]
         public IActionResult RetrieveUrl(string id)
         {

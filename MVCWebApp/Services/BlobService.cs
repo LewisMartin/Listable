@@ -10,6 +10,7 @@ namespace Listable.MVCWebApp.Services
     public enum BlobApiAction
     {
         ImageUpload,
+        ImageUpdate,
         ImageDelete,
         ImageRetrieveUrl,
         ImageRetrieveThumbs
@@ -24,6 +25,11 @@ namespace Listable.MVCWebApp.Services
         public async Task<HttpResponseMessage> ImageUpload(MultipartFormDataContent content)
         {
             return await APIRequest(BlobApiAction.ImageUpload, "", content);
+        }
+
+        public async Task<HttpResponseMessage> ImageUpdate(string imgId, MultipartFormDataContent content)
+        {
+            return await APIRequest(BlobApiAction.ImageUpdate, "?id=" + imgId, content);
         }
 
         public async Task<HttpResponseMessage> ImageDelete(string imgId)
@@ -57,7 +63,7 @@ namespace Listable.MVCWebApp.Services
         {
             var req = FormAPIRequestMessage(action, uriParams);
 
-            if (action == BlobApiAction.ImageUpload && content != null)
+            if ((action == BlobApiAction.ImageUpload || action == BlobApiAction.ImageUpdate) && content != null)
                 req.Content = content;
 
             string accessToken = await GetAccessTokenAsync(ListableAPI.BlobAPI);
@@ -72,6 +78,8 @@ namespace Listable.MVCWebApp.Services
             {
                 case BlobApiAction.ImageUpload:
                     return new HttpRequestMessage(HttpMethod.Post, (_configuration["BlobServiceAPI:APIEndpoint"] + "/upload" + uriParams));
+                case BlobApiAction.ImageUpdate:
+                    return new HttpRequestMessage(HttpMethod.Put, (_configuration["BlobServiceAPI:APIEndpoint"] + "/update" + uriParams));
                 case BlobApiAction.ImageRetrieveUrl:
                     return new HttpRequestMessage(HttpMethod.Get, (_configuration["BlobServiceAPI:APIEndpoint"] + "/retrieveurl" + uriParams));
                 case BlobApiAction.ImageRetrieveThumbs:
