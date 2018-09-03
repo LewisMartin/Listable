@@ -141,6 +141,66 @@ namespace Listable.MVCWebApp.Tests.Controllers
         }
 
         [Test]
+        public void EditItem_GET_ReturnsAViewResult_WithEditItemViewModel()
+        {
+            // Arrange:
+            var collectionId = _MockCollectionsService.DummyCollections.First().Id;
+            var itemId = _MockCollectionsService.DummyCollections.First().CollectionItems.First().Id;
+
+            // Act:
+            var result = _Controller.EditItem(collectionId, itemId.ToString()).Result as ViewResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.IsInstanceOf<EditItemViewModel>(result.Model);
+        }
+
+        [Test]
+        public void EditItem_POST_ReturnsARedirectToCollectionAction_WhenModelStateIsValid()
+        {
+            // Arrange:
+            var model = new EditItemViewModel()
+            {
+                CollectionName = "Collection Name",
+                ItemId = _MockCollectionsService.DummyCollections.First().CollectionItems.First().Id.ToString(),
+                ItemDetails = new ItemEditor()
+                {
+                    CollectionId = _MockCollectionsService.DummyCollections.First().Id,
+                    ImageEnabled = false,
+                    Name = "Item 1",
+                    Description = "Item 1 Description",
+                    ImageFile = null
+                }
+            };
+
+            // Act:
+            var result = _Controller.EditItem(model).Result as RedirectToActionResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual("Collection", result.ActionName);
+            Assert.AreEqual("Collections", result.ControllerName);
+        }
+
+        [Test]
+        public void EditItem_POST_ReturnsAViewResult_WhenModelStateIsInvalid()
+        {
+            // Arrange:
+            var model = new EditItemViewModel()
+            {
+                ItemDetails = null
+            };
+
+            // Act:
+            SimulateValidation(model);
+            var result = _Controller.EditItem(model).Result as ViewResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.IsInstanceOf<EditItemViewModel>(result.Model);
+        }
+
+        [Test]
         public void DeleteItem_GET_ReturnsAViewResult_WithDeleteItemViewModel()
         {
             // Arrange:
