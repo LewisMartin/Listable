@@ -126,8 +126,6 @@ namespace Listable.CollectionMicroservice.Controllers
         [HttpPut]
         public IActionResult UpdateItem(string collectionId, [FromBody] CollectionItem item)
         {
-            System.Diagnostics.Debugger.Break();
-
             if (collectionId == null || collectionId == "" || item == null)
                 return BadRequest();
 
