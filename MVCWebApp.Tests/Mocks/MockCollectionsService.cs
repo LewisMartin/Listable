@@ -105,5 +105,10 @@ namespace Listable.MVCWebApp.Tests.Mocks
                 }
             };
         }
+
+        public Task<HttpResponseMessage> UpdateItem(string collectionId, CollectionItem item)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

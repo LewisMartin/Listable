@@ -102,12 +102,15 @@ namespace Listable.MVCWebApp.Tests.Controllers
 
             var model = new CreateItemViewModel()
             {
-                CollectionId = "1",
                 CollectionName = "Collection Name",
-                ImageEnabled = false,
-                Name = "Item 1",
-                Description = "Item 1 Description",
-                ImageFile = fileMock.Object
+                ItemDetails = new ItemEditor()
+                {
+                    CollectionId = "1",
+                    ImageEnabled = false,
+                    Name = "Item 1",
+                    Description = "Item 1 Description",
+                    ImageFile = fileMock.Object
+                }
             };
 
             // Act:
@@ -125,7 +128,7 @@ namespace Listable.MVCWebApp.Tests.Controllers
             // Arrange:
             var model = new CreateItemViewModel()
             {
-                CollectionId = null
+                ItemDetails = null
             };
 
             // Act:

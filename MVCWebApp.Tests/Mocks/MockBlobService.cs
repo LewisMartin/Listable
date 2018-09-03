@@ -47,5 +47,10 @@ namespace Listable.MVCWebApp.Tests.Mocks
         {
             return Task.FromResult(new HttpResponseMessage() { StatusCode = System.Net.HttpStatusCode.OK });
         }
+
+        public Task<HttpResponseMessage> ImageUpdate(string imgId, MultipartFormDataContent content)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -36,5 +36,10 @@ namespace Listable.BlobMicroservice.Tests.Mocks
         {
             return Guid.NewGuid().ToString();
         }
+
+        public Task<string> SaveImage(Stream stream, string imageId)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
