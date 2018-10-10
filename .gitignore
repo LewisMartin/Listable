@@ -272,3 +272,9 @@ __pycache__/
 /BlobMicroservice/appsettings.Development.json
 /BlobMicroservice/appsettings.json
 /BlobMicroservice/Properties/PublishProfiles/listablecollections-blobapi - Web Deploy.pubxml
+/MVCWebApp/Properties/PublishProfiles/Listable-MVC - Web Deploy.pubxml
+/BlobMicroservice/Properties/PublishProfiles/Listable-BlobService - Web Deploy.pubxml
+/CollectionMicroservice/Properties/PublishProfiles/Listable-CollectionService - Web Deploy.pubxml
+/GatewayAPI/Properties
+/GatewayAPI/appsettings.Development.json
+/GatewayAPI/appsettings.json
