@@ -53,12 +53,11 @@ namespace Listable.CollectionMicroservice.Tests.Mocks
             return null; 
         }
 
-        public async Task InsertCollections(IEnumerable<Collection> collections)
+        public Collection InsertCollection(Collection collection)
         {
-            foreach (var collection in collections)
-            {
-                _collections.Add(collection);
-            }
+            _collections.Add(collection);
+
+            return collection;
         }
 
         public bool UpdateCollection(string id, Collection updatedCollection)

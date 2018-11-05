@@ -160,7 +160,7 @@ namespace Listable.CollectionMicroservice.Tests.Controllers
         }
 
         [Test]
-        public void Create_POST_ReturnsOkResult_OnSuccess()
+        public void Create_POST_ReturnsJsonResult_OnSuccess()
         {
             // Arrange:
 
@@ -168,7 +168,7 @@ namespace Listable.CollectionMicroservice.Tests.Controllers
             var res = _Controller.Create(_dummyCollection);
 
             // Assert:
-            Assert.IsInstanceOf<OkResult>(res);
+            Assert.IsInstanceOf<JsonResult>(res);
         }
 
         [Test]

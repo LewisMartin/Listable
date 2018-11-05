@@ -69,12 +69,12 @@ namespace Listable.CollectionMicroservice.Controllers
 
             try
             {
-                var collections = new List<Collection>();
-                collections.Add(collection);
+                collection = _collectionStore.InsertCollection(collection);
 
-                _collectionStore.InsertCollections(collections);
+                if(collection == null)
+                    return StatusCode(StatusCodes.Status500InternalServerError);
 
-                return Ok();
+                return Json(collection);
             }
             catch (Exception ex)
             {

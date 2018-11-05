@@ -1,13 +1,12 @@
 ﻿using Listable.CollectionMicroservice.DTO;
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Listable.CollectionMicroservice.Services
 {
     public interface ICollectionStore
     {
-        Task InsertCollections(IEnumerable<Collection> collections);
+        Collection InsertCollection(Collection collection);
 
         IEnumerable<Collection> GetAllCollections();
 

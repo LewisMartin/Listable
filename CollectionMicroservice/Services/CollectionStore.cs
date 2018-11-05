@@ -22,12 +22,9 @@ namespace Listable.CollectionMicroservice.Services
             _collectionsLink = UriFactory.CreateDocumentCollectionUri("listable", "collections");
         }
 
-        public async Task InsertCollections(IEnumerable<Collection> collections)
+        public Collection InsertCollection(Collection collection)
         {
-            foreach (var collection in collections)
-            {
-                await _docClient.CreateDocumentAsync(_collectionsLink, collection);
-            }
+            return (dynamic)_docClient.CreateDocumentAsync(_collectionsLink, collection).Result.Resource;
         }
 
         public IEnumerable<Collection> GetAllCollections()

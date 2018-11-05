@@ -59,15 +59,14 @@ namespace GatewayAPI.Controllers
                 CollectionItems = new List<CollectionItem>()
             };
 
-            if (!_collectionsService.Create(collection).Result.IsSuccessStatusCode)
+            var response = _collectionsService.Create(collection).Result;
+
+            if (!response.IsSuccessStatusCode)
                 return StatusCode(StatusCodes.Status500InternalServerError);
 
-            return Ok(new Collection()
-            {
-                Name = model.Name,
-                ImageEnabled = model.ImageEnabled,
-                DisplayFormat = model.ImageEnabled ? (model.GridDisplay == true ? CollectionDisplayFormat.Grid : CollectionDisplayFormat.List) : CollectionDisplayFormat.List,
-            });
+            collection = JsonConvert.DeserializeObject<Collection>(response.Content.ReadAsStringAsync().Result);
+
+            return Ok(collection);
         }
 
         private string GetUserSub()
