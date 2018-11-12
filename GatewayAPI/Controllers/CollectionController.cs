@@ -26,6 +26,12 @@ namespace GatewayAPI.Controllers
         }
 
         [HttpGet]
+        public IActionResult GetCollectionsForAuthenticatedUser()
+        {
+            return GetCollections(GetUserSub());
+        }
+
+        [HttpGet]
         public IActionResult GetCollections(string userId)
         {
             if (userId == null)
