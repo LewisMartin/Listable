@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using GatewayAPI.Models.Collection;
 using GatewayAPI.Models.Collection.Forms;
 using GatewayAPI.Services;
 using Listable.CollectionMicroservice.DTO;
@@ -42,7 +43,7 @@ namespace GatewayAPI.Controllers
             if (!response.IsSuccessStatusCode)
                 return StatusCode(StatusCodes.Status500InternalServerError);
 
-            var collections = JsonConvert.DeserializeObject<List<Collection>>(response.Content.ReadAsStringAsync().Result);
+            var collections = JsonConvert.DeserializeObject<List<CollectionListItem>>(response.Content.ReadAsStringAsync().Result);
 
             if (collections == null)
                 return NotFound();
