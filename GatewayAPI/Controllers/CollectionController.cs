@@ -75,6 +75,39 @@ namespace GatewayAPI.Controllers
             return Ok(collection);
         }
 
+        [HttpPost]
+        public async Task<IActionResult> DeleteCollection([FromBody] DeleteCollectionModel model)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var response = await _collectionsService.Retrieve(model.SelectedCollectionId);
+            if (!response.IsSuccessStatusCode)
+                return StatusCode(StatusCodes.Status500InternalServerError);
+
+            var collection = JsonConvert.DeserializeObject<Collection>(await response.Content.ReadAsStringAsync());
+
+            if (collection.Owner != GetUserSub())
+                return Unauthorized();
+
+            if (collection.ImageEnabled)
+            {
+                foreach (var item in collection.CollectionItems)
+                {
+                    if (item.ImageId != null && item.ImageId != "")
+                    {
+                        if (!_blobService.ImageDelete(item.ImageId).Result.IsSuccessStatusCode)
+                            return StatusCode(StatusCodes.Status500InternalServerError);
+                    }
+                }
+            }
+
+            if (!_collectionsService.Delete(model.SelectedCollectionId).Result.IsSuccessStatusCode)
+                return StatusCode(StatusCodes.Status500InternalServerError);
+
+            return Ok();
+        }
+
         private string GetUserSub()
         {
             string sub = "";
