@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace GatewayAPI.Models.Collection
+namespace GatewayAPI.Models.Collection.Forms
 {
     public class CreateCollectionModel
     {

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using GatewayAPI.Models.Collection;
+using GatewayAPI.Models.Collection.Forms;
 using GatewayAPI.Services;
 using Listable.CollectionMicroservice.DTO;
 using Microsoft.AspNetCore.Authorization;
