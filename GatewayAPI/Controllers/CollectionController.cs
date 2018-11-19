@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 using GatewayAPI.Models.Collection;
 using GatewayAPI.Models.Collection.Forms;
@@ -43,13 +44,51 @@ namespace GatewayAPI.Controllers
             if (!response.IsSuccessStatusCode)
                 return StatusCode(StatusCodes.Status500InternalServerError);
 
-            var collections = JsonConvert.DeserializeObject<List<CollectionListItem>>(response.Content.ReadAsStringAsync().Result);
+            var collections = JsonConvert.DeserializeObject<List<CollectionsListItem>>(response.Content.ReadAsStringAsync().Result);
 
             if (collections == null)
                 return NotFound();
 
             return Ok(collections);
         }  
+        
+        [HttpGet]
+        public async Task<IActionResult> GetCollection(string id)
+        {
+            if (id == null)
+                return BadRequest();
+
+            var response = _collectionsService.Retrieve(id).Result;
+
+            if (!response.IsSuccessStatusCode)
+                return StatusCode(StatusCodes.Status500InternalServerError);
+
+            var collection = JsonConvert.DeserializeObject<Collection>(response.Content.ReadAsStringAsync().Result);
+
+            var thumbnailMap = new Dictionary<string, string>();
+            if(collection.DisplayFormat == CollectionDisplayFormat.Grid)
+            {
+                response = MapThumbnails(collection);
+
+                if (!response.IsSuccessStatusCode)
+                    return StatusCode(StatusCodes.Status500InternalServerError);
+
+                thumbnailMap = JsonConvert.DeserializeObject<Dictionary<string, string>>(await response.Content.ReadAsStringAsync());
+            }
+
+            return Ok(new CollectionView()
+            {
+                Id = collection.Id,
+                Name = collection.Name,
+                GridDisplay = collection.DisplayFormat == CollectionDisplayFormat.Grid ? true : false,
+                CollectionViewItems = collection.CollectionItems.Select(item => new CollectionViewItem()
+                {
+                    Id = item.Id.ToString(),
+                    Name = item.Name,
+                    ThumbnailUri = thumbnailMap.ContainsKey(item.ImageId) ? thumbnailMap[item.ImageId] : ""
+                }).ToList()
+            });
+        }
         
         [HttpPost]
         public IActionResult CreateCollection([FromBody] CreateCollectionModel model)
@@ -121,5 +160,16 @@ namespace GatewayAPI.Controllers
             return sub;
         }
 
+        private HttpResponseMessage MapThumbnails(Collection collection)
+        {
+            List<string> imgIds = new List<string>();
+            foreach (var item in collection.CollectionItems)
+            {
+                if (item.ImageId != null && item.ImageId != "")
+                    imgIds.Add(item.ImageId);
+            }
+
+            return _blobService.ImageRetrieveThumbs(imgIds).Result;
+        }
     }
 }
