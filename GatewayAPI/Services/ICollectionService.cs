@@ -10,6 +10,8 @@ namespace GatewayAPI.Services
 
         Task<HttpResponseMessage> RetrieveAll(string userId);
 
+        Task<HttpResponseMessage> RetrieveItem(string collectionId, string itemId);
+
         Task<HttpResponseMessage> Create(Collection collection);
 
         Task<HttpResponseMessage> Update(Collection collection);

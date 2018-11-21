@@ -13,6 +13,7 @@ namespace GatewayAPI.Services
     {
         Retrieve,
         RetrieveAll,
+        RetrieveItem,
         Create,
         CreateItem,
         Update,
@@ -48,6 +49,11 @@ namespace GatewayAPI.Services
         public async Task<HttpResponseMessage> Delete(string id)
         {
             return await APIRequest(CollectionApiAction.Delete, "?id=" + id);
+        }
+
+        public async Task<HttpResponseMessage> RetrieveItem(string collectionId, string itemId)
+        {
+            return await APIRequest(CollectionApiAction.RetrieveItem, "?collectionId=" + collectionId + "&itemId=" + itemId);
         }
 
         public async Task<HttpResponseMessage> CreateItem(string collectionId, CollectionItem item)
@@ -86,6 +92,8 @@ namespace GatewayAPI.Services
                     return new HttpRequestMessage(HttpMethod.Get, (_configuration["CollectionAPI:APIEndpoint"] + "/retrieve" + uriParams));
                 case CollectionApiAction.RetrieveAll:
                     return new HttpRequestMessage(HttpMethod.Get, (_configuration["CollectionAPI:APIEndpoint"] + "/retrieveall" + uriParams));
+                case CollectionApiAction.RetrieveItem:
+                    return new HttpRequestMessage(HttpMethod.Get, (_configuration["CollectionAPI:APIEndpoint"] + "/retrieveitem" + uriParams));
                 case CollectionApiAction.Create:
                     return new HttpRequestMessage(HttpMethod.Post, (_configuration["CollectionAPI:APIEndpoint"] + "/create" + uriParams));
                 case CollectionApiAction.CreateItem:
