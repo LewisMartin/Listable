@@ -90,6 +90,28 @@ namespace GatewayAPI.Controllers
                 }).ToList()
             });
         }
+
+        [HttpGet]
+        public IActionResult GetCollectionSettings(string id)
+        {
+            if (id == null)
+                return BadRequest();
+
+            var response = _collectionsService.Retrieve(id).Result;
+
+            if (!response.IsSuccessStatusCode)
+                return StatusCode(StatusCodes.Status500InternalServerError);
+
+            var collection = JsonConvert.DeserializeObject<Collection>(response.Content.ReadAsStringAsync().Result);
+
+            return Ok(new CollectionSettings()
+            {
+                Id = collection.Id,
+                Name = collection.Name,
+                ImageEnabled = collection.ImageEnabled,
+                GridDisplay = collection.DisplayFormat == CollectionDisplayFormat.Grid ? true : false
+            });
+        }
         
         [HttpPost]
         public IActionResult CreateCollection([FromBody] CreateCollectionFormModel model)
@@ -114,6 +136,27 @@ namespace GatewayAPI.Controllers
             collection = JsonConvert.DeserializeObject<Collection>(response.Content.ReadAsStringAsync().Result);
 
             return Ok(collection);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> EditCollection([FromBody] EditCollectionFormModel model)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var response = await _collectionsService.Retrieve(model.Id);
+            if (!response.IsSuccessStatusCode)
+                return StatusCode(StatusCodes.Status500InternalServerError);
+
+            var collection = JsonConvert.DeserializeObject<Collection>(await response.Content.ReadAsStringAsync());
+
+            collection.Name = model.Name;
+            collection.DisplayFormat = model.GridDisplay == true ? CollectionDisplayFormat.Grid : CollectionDisplayFormat.List;
+
+            if (!_collectionsService.Update(collection).Result.IsSuccessStatusCode)
+                return StatusCode(StatusCodes.Status500InternalServerError);
+
+            return Ok();
         }
 
         [HttpPost]
