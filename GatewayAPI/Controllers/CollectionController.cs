@@ -18,6 +18,7 @@ namespace GatewayAPI.Controllers
     [Route("api/[controller]/[action]")]
     public class CollectionController : Controller
     {
+        private readonly IImageManipulation _imageManipulation;
         private readonly IBlobService _blobService;
         private readonly ICollectionsService _collectionsService;
 
@@ -147,6 +148,46 @@ namespace GatewayAPI.Controllers
 
             return Ok();
         }
+
+        [HttpGet]
+        public async Task<IActionResult> GetCollectionItem(string collectionId, string itemId)
+        {
+            if (collectionId == null || itemId == null)
+                return BadRequest();
+
+            var response = await _collectionsService.Retrieve(collectionId);
+            if (!response.IsSuccessStatusCode)
+                return StatusCode(StatusCodes.Status500InternalServerError);
+
+            var collection = JsonConvert.DeserializeObject<Collection>(await response.Content.ReadAsStringAsync());
+
+            var item = collection.CollectionItems.Where(i => i.Id == new Guid(itemId)).FirstOrDefault();
+
+            if (item == null)
+                return RedirectToAction("Error", "Home");
+
+            var url = "";
+            if (collection.ImageEnabled && item.ImageId != null && item.ImageId != "")
+            {
+                response = await _blobService.ImageRetrieveUrl(item.ImageId);
+                if (!response.IsSuccessStatusCode)
+                    return StatusCode(StatusCodes.Status500InternalServerError);
+
+                url = JsonConvert.DeserializeObject<string>(await response.Content.ReadAsStringAsync());
+            }
+
+            return Ok(new CollectionItemView()
+            {
+                CollectionId = collection.Id,
+                CollectionName = collection.Name,
+                Id = item.Id.ToString(),
+                Name = item.Name,
+                Description = item.Description,
+                ShowImage = collection.ImageEnabled,
+                ImageUrl = url
+            });
+        }
+
 
         private string GetUserSub()
         {
