@@ -2,7 +2,7 @@
 
 namespace GatewayAPI.Models.Collection.Forms
 {
-    public class CreateCollectionModel
+    public class CreateCollectionFormModel
     {
         [Required]
         public string Name { get; set; }

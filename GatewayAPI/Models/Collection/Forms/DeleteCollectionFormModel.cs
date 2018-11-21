@@ -2,7 +2,7 @@
 
 namespace GatewayAPI.Models.Collection.Forms
 {
-    public class DeleteCollectionModel
+    public class DeleteCollectionFormModel
     {
         [Required]
         public string SelectedCollectionId { get; set; }

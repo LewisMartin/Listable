@@ -92,7 +92,7 @@ namespace GatewayAPI.Controllers
         }
         
         [HttpPost]
-        public IActionResult CreateCollection([FromBody] CreateCollectionModel model)
+        public IActionResult CreateCollection([FromBody] CreateCollectionFormModel model)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -117,7 +117,7 @@ namespace GatewayAPI.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> DeleteCollection([FromBody] DeleteCollectionModel model)
+        public async Task<IActionResult> DeleteCollection([FromBody] DeleteCollectionFormModel model)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
