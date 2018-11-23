@@ -6,6 +6,9 @@ namespace GatewayAPI.Models.Collection.Forms
 {
     public class CreateCollectionItemFormModel
     {
+        [Required]
+        public string CollectionId { get; set; }
+
         [Required, MaxLength(30)]
         public string Name { get; set; }
 

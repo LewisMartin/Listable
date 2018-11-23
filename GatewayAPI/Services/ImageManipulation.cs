@@ -1,5 +1,4 @@
-﻿using GatewayAPI.Services;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Internal;
 using System;
 using System.Drawing;
@@ -8,7 +7,7 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Net.Http.Headers;
 
-namespace Listable.MVCWebApp.Services
+namespace GatewayAPI.Services
 {
     public class ImageManipulation : IImageManipulation
     {

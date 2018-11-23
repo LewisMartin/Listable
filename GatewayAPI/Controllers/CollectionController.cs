@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using GatewayAPI.Models.Collection;
 using GatewayAPI.Models.Collection.Forms;
@@ -22,8 +23,9 @@ namespace GatewayAPI.Controllers
         private readonly IBlobService _blobService;
         private readonly ICollectionsService _collectionsService;
 
-        public CollectionController(IBlobService blobService, ICollectionsService collectionsService)
+        public CollectionController(IImageManipulation imageManipulation, IBlobService blobService, ICollectionsService collectionsService)
         {
+            _imageManipulation = imageManipulation;
             _blobService = blobService;
             _collectionsService = collectionsService;
         }
@@ -231,6 +233,38 @@ namespace GatewayAPI.Controllers
             });
         }
 
+        [HttpPost]
+        public async Task<IActionResult> CreateCollectionItem([FromForm] CreateCollectionItemFormModel model)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest();
+
+            string imgId = "";
+            if (model.ImageFile != null && model.ImageFile.Length > 0)
+            {
+                var content = FormImageContent(model.ImageFile);
+
+                var response = await _blobService.ImageUpload(content);
+                if (!response.IsSuccessStatusCode)
+                    StatusCode(StatusCodes.Status500InternalServerError);
+
+                imgId = JsonConvert.DeserializeObject<string>(await response.Content.ReadAsStringAsync());
+            }
+
+            CollectionItem item = new CollectionItem()
+            {
+                Id = Guid.NewGuid(),
+                Name = model.Name,
+                Description = model.Description,
+                ImageId = imgId
+            };
+
+            if (!_collectionsService.CreateItem(model.CollectionId, item).Result.IsSuccessStatusCode)
+                StatusCode(StatusCodes.Status500InternalServerError);
+
+            return Ok();
+        }
+
 
         private string GetUserSub()
         {
@@ -254,6 +288,34 @@ namespace GatewayAPI.Controllers
             }
 
             return _blobService.ImageRetrieveThumbs(imgIds).Result;
+        }
+
+        private MultipartFormDataContent FormImageContent(IFormFile imageFile)
+        {
+            string ImageContentType = imageFile.ContentType;
+            var fileName = ContentDispositionHeaderValue.Parse(imageFile.ContentDisposition).FileName;
+
+            if (imageFile.Length > 100000)
+            {
+                imageFile = _imageManipulation.LoadFile(imageFile).Resize(600).Retrieve();
+                ImageContentType = "image/jpg";
+            }
+
+            return new MultipartFormDataContent
+            {
+                {
+                    new StreamContent(imageFile.OpenReadStream())
+                    {
+                        Headers =
+                        {
+                            ContentLength = imageFile.Length,
+                            ContentType = new MediaTypeHeaderValue(ImageContentType)
+                        }
+                    },
+                    "image",
+                    fileName
+                }
+            };
         }
     }
 }

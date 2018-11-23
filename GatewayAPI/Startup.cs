@@ -24,6 +24,7 @@ namespace GatewayAPI
         public void ConfigureServices(IServiceCollection services)
         {
             // Register and map custom services
+            services.AddTransient<IImageManipulation, ImageManipulation>();
             services.AddTransient<ICollectionsService, CollectionService>();
             services.AddTransient<IBlobService, BlobService>();
 
