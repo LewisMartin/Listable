@@ -265,6 +265,53 @@ namespace GatewayAPI.Controllers
             return Ok();
         }
 
+        [HttpPost]
+        public async Task<IActionResult> EditCollectionItem([FromForm] EditCollectionItemFormModel model)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest();
+
+            var response = await _collectionsService.Retrieve(model.CollectionId);
+            if (!response.IsSuccessStatusCode)
+                StatusCode(StatusCodes.Status500InternalServerError);
+
+            var collection = JsonConvert.DeserializeObject<Collection>(await response.Content.ReadAsStringAsync());
+            var item = collection.CollectionItems.Where(i => i.Id.ToString() == model.Id).First();
+
+            string imgId = item.ImageId;
+
+            if (model.ImageFile != null && model.ImageFile.Length > 0)
+            {
+                var content = FormImageContent(model.ImageFile);
+
+                if (imgId == null || imgId == "")
+                {
+                    response = await _blobService.ImageUpload(content);
+                    imgId = JsonConvert.DeserializeObject<string>(await response.Content.ReadAsStringAsync());
+                }
+                else
+                {
+                    response = await _blobService.ImageUpdate(imgId, content);
+                }
+
+                if (!response.IsSuccessStatusCode)
+                    StatusCode(StatusCodes.Status500InternalServerError);
+            }
+
+            CollectionItem updatedItem = new CollectionItem()
+            {
+                Id = new Guid(model.Id),
+                Name = model.Name,
+                Description = model.Description,
+                ImageId = imgId
+            };
+
+            if (!_collectionsService.UpdateItem(model.CollectionId, updatedItem).Result.IsSuccessStatusCode)
+                StatusCode(StatusCodes.Status500InternalServerError);
+
+            return Ok();
+        }
+
 
         private string GetUserSub()
         {
