@@ -311,6 +311,47 @@ namespace GatewayAPI.Controllers
             return Ok();
         }
 
+        [HttpPost]
+        public async Task<IActionResult> DeleteCollectionItem([FromBody] DeleteCollectionItemFormModel model)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest();
+
+            var response = await _collectionsService.Retrieve(model.CollectionId);
+            if (!response.IsSuccessStatusCode)
+                StatusCode(StatusCodes.Status500InternalServerError);
+
+            var collection = JsonConvert.DeserializeObject<Collection>(await response.Content.ReadAsStringAsync());
+
+            var itemIds = new List<string>();
+            var imageIds = new List<string>();
+
+            foreach (var itemId in model.SelectedCollectionIds)
+            {
+                itemIds.Add(itemId);
+
+                string itemImgId = collection.CollectionItems.Where(i => i.Id.ToString() == itemId).FirstOrDefault().ImageId;
+
+                if (itemImgId != null && itemImgId != "")
+                    imageIds.Add(itemImgId);
+            }
+
+            if (collection.ImageEnabled)
+            {
+                foreach (var imageId in imageIds)                   // delete media
+                {
+                    if (!_blobService.ImageDelete(imageId).Result.IsSuccessStatusCode)
+                        StatusCode(StatusCodes.Status500InternalServerError);
+                }
+            }
+
+            var content = JsonConvert.SerializeObject(itemIds);     // delete items
+
+            if (!_collectionsService.DeleteItem(model.CollectionId, content).Result.IsSuccessStatusCode)
+                StatusCode(StatusCodes.Status500InternalServerError);
+
+            return Ok();
+        }
 
         private string GetUserSub()
         {
