@@ -324,28 +324,17 @@ namespace GatewayAPI.Controllers
             var collection = JsonConvert.DeserializeObject<Collection>(await response.Content.ReadAsStringAsync());
 
             var itemIds = new List<string>();
-            var imageIds = new List<string>();
+            itemIds.Add(model.CollectionItemId);
 
-            foreach (var itemId in model.SelectedCollectionIds)
+            string itemImageId = collection.CollectionItems.Where(i => i.Id.ToString() == model.CollectionItemId).FirstOrDefault().ImageId;
+
+            if (collection.ImageEnabled && itemImageId != null && itemImageId != "")
             {
-                itemIds.Add(itemId);
-
-                string itemImgId = collection.CollectionItems.Where(i => i.Id.ToString() == itemId).FirstOrDefault().ImageId;
-
-                if (itemImgId != null && itemImgId != "")
-                    imageIds.Add(itemImgId);
+                if (!_blobService.ImageDelete(itemImageId).Result.IsSuccessStatusCode)
+                    StatusCode(StatusCodes.Status500InternalServerError);
             }
 
-            if (collection.ImageEnabled)
-            {
-                foreach (var imageId in imageIds)                   // delete media
-                {
-                    if (!_blobService.ImageDelete(imageId).Result.IsSuccessStatusCode)
-                        StatusCode(StatusCodes.Status500InternalServerError);
-                }
-            }
-
-            var content = JsonConvert.SerializeObject(itemIds);     // delete items
+            var content = JsonConvert.SerializeObject(itemIds);
 
             if (!_collectionsService.DeleteItem(model.CollectionId, content).Result.IsSuccessStatusCode)
                 StatusCode(StatusCodes.Status500InternalServerError);

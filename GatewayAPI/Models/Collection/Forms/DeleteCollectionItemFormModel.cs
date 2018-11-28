@@ -9,6 +9,6 @@ namespace GatewayAPI.Models.Collection.Forms
     {
         public string CollectionId { get; set; }
 
-        public List<string> SelectedCollectionIds { get; set; }
+        public string CollectionItemId { get; set; }
     }
 }
