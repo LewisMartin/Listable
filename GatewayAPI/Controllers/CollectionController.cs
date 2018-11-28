@@ -271,12 +271,11 @@ namespace GatewayAPI.Controllers
             if (!ModelState.IsValid)
                 return BadRequest();
 
-            var response = await _collectionsService.Retrieve(model.CollectionId);
+            var response = await _collectionsService.RetrieveItem(model.CollectionId, model.Id);
             if (!response.IsSuccessStatusCode)
                 StatusCode(StatusCodes.Status500InternalServerError);
 
-            var collection = JsonConvert.DeserializeObject<Collection>(await response.Content.ReadAsStringAsync());
-            var item = collection.CollectionItems.Where(i => i.Id.ToString() == model.Id).First();
+            var item = JsonConvert.DeserializeObject<CollectionItem>(await response.Content.ReadAsStringAsync());
 
             string imgId = item.ImageId;
 
