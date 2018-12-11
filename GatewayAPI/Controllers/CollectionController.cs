@@ -237,7 +237,7 @@ namespace GatewayAPI.Controllers
         public async Task<IActionResult> CreateCollectionItem([FromForm] CreateCollectionItemFormModel model)
         {
             if (!ModelState.IsValid)
-                return BadRequest();
+                return BadRequest(ModelState);
 
             string imgId = "";
             if (model.ImageFile != null && model.ImageFile.Length > 0)
@@ -269,7 +269,7 @@ namespace GatewayAPI.Controllers
         public async Task<IActionResult> EditCollectionItem([FromForm] EditCollectionItemFormModel model)
         {
             if (!ModelState.IsValid)
-                return BadRequest();
+                return BadRequest(ModelState);
 
             var response = await _collectionsService.RetrieveItem(model.CollectionId, model.Id);
             if (!response.IsSuccessStatusCode)
@@ -315,7 +315,7 @@ namespace GatewayAPI.Controllers
         public async Task<IActionResult> DeleteCollectionItem([FromBody] DeleteCollectionItemFormModel model)
         {
             if (!ModelState.IsValid)
-                return BadRequest();
+                return BadRequest(ModelState);
 
             var response = await _collectionsService.Retrieve(model.CollectionId);
             if (!response.IsSuccessStatusCode)
