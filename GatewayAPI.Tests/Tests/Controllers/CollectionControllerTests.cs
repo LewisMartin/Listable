@@ -1,13 +1,12 @@
 ﻿using GatewayAPI.Controllers;
+using GatewayAPI.Models.Collection.Forms;
 using GatewayAPI.Tests.Controllers;
 using GatewayAPI.Tests.Mocks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NUnit.Framework;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace GatewayAPI.Tests.Tests.Controllers
 {
@@ -90,6 +89,115 @@ namespace GatewayAPI.Tests.Tests.Controllers
 
             // Assert:
             Assert.IsInstanceOf<BadRequestResult>(res);
+        }
+
+        [Test]
+        public void CreateCollection_ReturnsBadRequest_WhenModelStateInvalid()
+        {
+            // Arrange:
+            var model = new CreateCollectionFormModel()
+            {
+                Name = null
+            };
+
+            // Act:
+            SimulateValidation(model);
+            var result = _Controller.CreateCollection(model);
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.IsInstanceOf<BadRequestObjectResult>(result);
+        }
+
+        [Test]
+        public void EditCollection_ReturnsBadRequest_WhenModelStateInvalid()
+        {
+            // Arrange:
+            var model = new EditCollectionFormModel()
+            {
+                Id = null,
+                Name = null
+            };
+
+            // Act:
+            SimulateValidation(model);
+            var result = _Controller.EditCollection(model).Result;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.IsInstanceOf<BadRequestObjectResult>(result);
+        }
+
+        [Test]
+        public void DeleteCollection_ReturnsBadRequest_WhenModelStateInvalid()
+        {
+            // Arrange:
+            var model = new DeleteCollectionFormModel()
+            {
+                SelectedCollectionId = null
+            };
+
+            // Act:
+            SimulateValidation(model);
+            var result = _Controller.DeleteCollection(model).Result;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.IsInstanceOf<BadRequestObjectResult>(result);
+        }
+
+        [Test]
+        public void CreateCollectionItem_ReturnsBadRequest_WhenModelStateInvalid()
+        {
+            // Arrange:
+            var model = new CreateCollectionItemFormModel()
+            {
+                CollectionId = null
+            };
+
+            // Act:
+            SimulateValidation(model);
+            var result = _Controller.CreateCollectionItem(model).Result;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.IsInstanceOf<BadRequestObjectResult>(result);
+        }
+
+        [Test]
+        public void EditCollectionItem_ReturnsBadRequest_WhenModelStateInvalid()
+        {
+            // Arrange:
+            var model = new EditCollectionItemFormModel()
+            {
+                CollectionId = null
+            };
+
+            // Act:
+            SimulateValidation(model);
+            var result = _Controller.EditCollectionItem(model).Result;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.IsInstanceOf<BadRequestObjectResult>(result);
+        }
+
+        [Test]
+        public void DeleteCollectionItem_ReturnsBadRequest_WhenModelStateInvalid()
+        {
+            // Arrange:
+            var model = new DeleteCollectionItemFormModel()
+            {
+                CollectionId = null
+            };
+
+            // Act:
+            SimulateValidation(model);
+            var result = _Controller.DeleteCollectionItem(model).Result;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.IsInstanceOf<BadRequestObjectResult>(result);
         }
     }
 }
