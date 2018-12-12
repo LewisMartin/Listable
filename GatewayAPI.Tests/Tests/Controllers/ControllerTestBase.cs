@@ -21,7 +21,10 @@ namespace GatewayAPI.Tests.Controllers
         }
 
         [SetUp]
-        public abstract void SetUp();
+        public virtual void SetUp()
+        {
+            SetUpDummyData();
+        }
 
         [TearDown]
         public void TearDown()
@@ -45,7 +48,8 @@ namespace GatewayAPI.Tests.Controllers
         {
             IList<Claim> MockClaims = new List<Claim>
             {
-                new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name", "TestUser")
+                new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name", "TestUser"),
+                new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier", "TestUser")
             };
 
             var Identity = new ClaimsIdentity(MockClaims, "TestAuthType");
@@ -64,5 +68,7 @@ namespace GatewayAPI.Tests.Controllers
                 _Controller.ModelState.AddModelError(validationResult.MemberNames.First(), validationResult.ErrorMessage);
             }
         }
+
+        protected virtual void SetUpDummyData() { }
     }
 }

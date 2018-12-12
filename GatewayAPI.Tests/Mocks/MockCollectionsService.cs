@@ -15,12 +15,21 @@ namespace GatewayAPI.Tests.Mocks
 
         public MockCollectionsService()
         {
-            DummyCollections = SetDummyCollections();
+            DummyCollections = DefaultDummyCollections();
+        }
+
+        public MockCollectionsService(List<Collection> dummyCollections)
+        {
+            DummyCollections = dummyCollections;
         }
 
         public Task<HttpResponseMessage> Create(Collection collection)
         {
-            return Task.FromResult(new HttpResponseMessage() { StatusCode = System.Net.HttpStatusCode.OK });
+            return Task.FromResult(new HttpResponseMessage()
+            {
+                StatusCode = System.Net.HttpStatusCode.OK,
+                Content = new StringContent(JsonConvert.SerializeObject(collection))
+            });
         }
 
         public Task<HttpResponseMessage> CreateItem(string collectionId, CollectionItem item)
@@ -61,7 +70,7 @@ namespace GatewayAPI.Tests.Mocks
             });
         }
 
-        private List<Collection> SetDummyCollections()
+        private List<Collection> DefaultDummyCollections()
         {
             return new List<Collection>()
             {
@@ -111,7 +120,11 @@ namespace GatewayAPI.Tests.Mocks
 
         public Task<HttpResponseMessage> RetrieveItem(string collectionId, string itemId)
         {
-            throw new NotImplementedException();
+            return Task.FromResult(new HttpResponseMessage()
+            {
+                StatusCode = System.Net.HttpStatusCode.OK,
+                Content = new StringContent(JsonConvert.SerializeObject(DummyCollections.FirstOrDefault(c => c.Id == collectionId).CollectionItems.FirstOrDefault(i => i.Id.ToString() == itemId)))
+            });
         }
     }
 }
