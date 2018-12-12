@@ -88,7 +88,7 @@ namespace GatewayAPI.Controllers
                 {
                     Id = item.Id.ToString(),
                     Name = item.Name,
-                    ThumbnailUri = thumbnailMap.ContainsKey(item.ImageId) ? thumbnailMap[item.ImageId] : ""
+                    ThumbnailUri = (item.ImageId != null) && (thumbnailMap.ContainsKey(item.ImageId)) ? thumbnailMap[item.ImageId] : ""
                 }).ToList()
             });
         }
