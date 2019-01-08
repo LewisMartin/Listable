@@ -278,3 +278,6 @@ __pycache__/
 /GatewayAPI/Properties
 /GatewayAPI/appsettings.Development.json
 /GatewayAPI/appsettings.json
+/UserMicroservice/Properties
+/UserMicroservice/appsettings.Development.json
+/UserMicroservice/appsettings.json
