@@ -14,6 +14,9 @@ namespace Listable.UserMicroservice
             builder.Entity<User>()
                 .HasIndex(u => u.DisplayName)
                 .IsUnique();
+
+            builder.Entity<User>()
+                .HasAlternateKey(u => u.SubjectId);
         }
     }
 }
