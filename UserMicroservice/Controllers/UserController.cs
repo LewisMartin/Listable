@@ -31,6 +31,15 @@ namespace Listable.UserMicroservice.Controllers
                 return NotFound();
         }
 
+        [HttpGet]
+        public IActionResult CheckForUserEntry(string subjectId)
+        {
+            if (_DbContext.Users.Any(u => u.SubjectId == subjectId))
+                return Ok();
+            else
+                return NotFound();
+        }
+
         [HttpPost]
         public IActionResult CreateUser([FromBody] UserDetails userDetails)
         {
@@ -97,7 +106,7 @@ namespace Listable.UserMicroservice.Controllers
         }
 
         [HttpGet]
-        public IActionResult CheckDisplayNameAvailability(string displayName)
+        public IActionResult CheckDisplayName(string displayName)
         {
             if (IsDisplayNameAvailable(displayName))
                 return Ok();

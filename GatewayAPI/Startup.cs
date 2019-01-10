@@ -27,6 +27,7 @@ namespace GatewayAPI
             services.AddTransient<IImageManipulation, ImageManipulation>();
             services.AddTransient<ICollectionsService, CollectionService>();
             services.AddTransient<IBlobService, BlobService>();
+            services.AddTransient<IUserService, UserService>();
 
             // Make httpcontext accessible inside service classes
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();

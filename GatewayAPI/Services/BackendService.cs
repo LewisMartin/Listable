@@ -6,8 +6,6 @@ using System.Threading.Tasks;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Authentication;
-using System.Linq;
 
 namespace GatewayAPI.Services
 {
@@ -16,7 +14,8 @@ namespace GatewayAPI.Services
         public enum BackendAPI
         {
             CollectionAPI,
-            BlobAPI
+            BlobAPI,
+            UserAPI
         }
 
         protected static readonly HttpClient Client = new HttpClient();
@@ -86,6 +85,8 @@ namespace GatewayAPI.Services
                     return _configuration["CollectionAPI:Resource"];
                 case BackendAPI.BlobAPI:
                     return _configuration["BlobServiceAPI:Resource"];
+                case BackendAPI.UserAPI:
+                    return _configuration["UserServiceAPI:Resource"];
                 default:
                     return null;
             }
