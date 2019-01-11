@@ -13,6 +13,7 @@ namespace GatewayAPI.Services
     public enum UserApiAction
     {
         GetUser,
+        GetUserBySub,
         CreateUser,
         UpdateUser,
         DeleteUser,
@@ -27,6 +28,11 @@ namespace GatewayAPI.Services
         public async Task<HttpResponseMessage> GetUser(int userId)
         {
             return await APIRequest(UserApiAction.GetUser, "?userId=" + userId);
+        }
+
+        public async Task<HttpResponseMessage> GetUserBySub(string subjectId)
+        {
+            return await APIRequest(UserApiAction.GetUserBySub, "subjectId=" + subjectId);
         }
 
         public async Task<HttpResponseMessage> CheckForUserEntry(string subjectId)
@@ -73,6 +79,8 @@ namespace GatewayAPI.Services
             {
                 case UserApiAction.GetUser:
                     return new HttpRequestMessage(HttpMethod.Get, (_configuration["UserServiceAPI:APIEndpoint"] + "/getuser" + uriParams));
+                case UserApiAction.GetUserBySub:
+                    return new HttpRequestMessage(HttpMethod.Get, (_configuration["UserServiceAPI:APIEndpoint"] + "/getuserbysub" + uriParams));
                 case UserApiAction.CheckForUserEntry:
                     return new HttpRequestMessage(HttpMethod.Get, (_configuration["UserServiceAPI:APIEndpoint"] + "/checkforuserentry" + uriParams));
                 case UserApiAction.CreateUser:

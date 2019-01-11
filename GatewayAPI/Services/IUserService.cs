@@ -8,6 +8,8 @@ namespace GatewayAPI.Services
     {
         Task<HttpResponseMessage> GetUser(int userId);
 
+        Task<HttpResponseMessage> GetUserBySub(string subjectId);
+
         Task<HttpResponseMessage> CreateUser(UserDetails userDetails);
 
         Task<HttpResponseMessage> UpdateUser(UserDetails userDetails);
