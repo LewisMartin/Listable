@@ -32,6 +32,17 @@ namespace Listable.UserMicroservice.Controllers
         }
 
         [HttpGet]
+        public IActionResult GetUserBySub(string subjectId)
+        {
+            var user = _DbContext.Users.FirstOrDefault(u => u.SubjectId == subjectId);
+
+            if (user != null)
+                return Json(user);
+            else
+                return NotFound();
+        }
+
+        [HttpGet]
         public IActionResult CheckForUserEntry(string subjectId)
         {
             if (_DbContext.Users.Any(u => u.SubjectId == subjectId))
