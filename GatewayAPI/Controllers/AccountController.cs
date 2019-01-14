@@ -141,7 +141,7 @@ namespace GatewayAPI.Controllers
                 name = identity.Claims.Where(c => c.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name").FirstOrDefault().Value;
             }
 
-            name = Regex.Replace(name, @"\s+", "");
+            name = Regex.Replace(name, @"[^0-9a-zA-Z]+", "");
 
             name = name.Length < size-10 ? name : name.Substring(0, size-10);
 

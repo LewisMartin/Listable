@@ -8,6 +8,7 @@ namespace GatewayAPI.Models.Account
         public int Id { get; set; }
 
         [Required]
+        [RegularExpression(@"^[0-9a-zA-Z]+")]
         public string DisplayName { get; set; }
 
         public string FirstName { get; set; }
