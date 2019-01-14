@@ -32,7 +32,7 @@ namespace GatewayAPI.Services
 
         public async Task<HttpResponseMessage> GetUserBySub(string subjectId)
         {
-            return await APIRequest(UserApiAction.GetUserBySub, "subjectId=" + subjectId);
+            return await APIRequest(UserApiAction.GetUserBySub, "?subjectId=" + subjectId);
         }
 
         public async Task<HttpResponseMessage> CheckForUserEntry(string subjectId)

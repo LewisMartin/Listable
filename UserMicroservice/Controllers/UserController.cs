@@ -87,7 +87,6 @@ namespace Listable.UserMicroservice.Controllers
             {
                 var user = _DbContext.Users.FirstOrDefault(u => u.Id == userDetails.Id);
 
-                user.SubjectId = userDetails.SubjectId;
                 user.DisplayName = userDetails.DisplayName;
                 user.FirstName = userDetails.FirstName;
                 user.LastName = userDetails.LastName;

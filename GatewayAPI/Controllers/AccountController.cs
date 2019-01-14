@@ -96,7 +96,21 @@ namespace GatewayAPI.Controllers
             }).Result;
 
             if(!response.IsSuccessStatusCode)
-                StatusCode(StatusCodes.Status500InternalServerError);
+                return StatusCode(StatusCodes.Status500InternalServerError);
+
+            return Ok();
+        }
+
+        [HttpGet]
+        public IActionResult CheckDisplayName(string displayName)
+        {
+            if (displayName == null)
+                return BadRequest();
+
+            var response = _userService.CheckDisplayName(displayName).Result;
+
+            if (!response.IsSuccessStatusCode)
+                return BadRequest();
 
             return Ok();
         }
