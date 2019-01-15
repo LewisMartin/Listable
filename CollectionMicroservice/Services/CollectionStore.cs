@@ -33,7 +33,7 @@ namespace Listable.CollectionMicroservice.Services
                                             .OrderBy(c => c.Name);
         }
 
-        public IEnumerable<Collection> GetAllCollectionsForUser(string userId)
+        public IEnumerable<Collection> GetAllCollectionsForUser(int userId)
         {
             return _docClient.CreateDocumentQuery<Collection>(_collectionsLink)
                                             .Where(c => c.Owner == userId)

@@ -37,11 +37,8 @@ namespace Listable.CollectionMicroservice.Controllers
 
         // GET collections/retrieveall
         [HttpGet]
-        public IActionResult RetrieveAll(string userId)
+        public IActionResult RetrieveAll(int userId)
         {
-            if (userId == null || userId == "")
-                return BadRequest();
-
             return Json(_collectionStore.GetAllCollectionsForUser(userId).ToList());
         }
 

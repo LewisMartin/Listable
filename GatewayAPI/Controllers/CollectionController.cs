@@ -8,6 +8,7 @@ using GatewayAPI.Models.Collection;
 using GatewayAPI.Models.Collection.Forms;
 using GatewayAPI.Services;
 using Listable.CollectionMicroservice.DTO;
+using Listable.UserMicroservice.DTO;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -22,26 +23,25 @@ namespace GatewayAPI.Controllers
         private readonly IImageManipulation _imageManipulation;
         private readonly IBlobService _blobService;
         private readonly ICollectionsService _collectionsService;
+        private readonly IUserService _userService;
 
-        public CollectionController(IImageManipulation imageManipulation, IBlobService blobService, ICollectionsService collectionsService)
+        public CollectionController(IImageManipulation imageManipulation, IBlobService blobService, ICollectionsService collectionsService, IUserService userService)
         {
             _imageManipulation = imageManipulation;
             _blobService = blobService;
             _collectionsService = collectionsService;
+            _userService = userService;
         }
 
         [HttpGet]
         public IActionResult GetCollectionsForAuthenticatedUser()
         {
-            return GetCollections(GetUserSub());
+            return GetCollections(GetUserId());
         }
 
         [HttpGet]
-        public IActionResult GetCollections(string userId)
+        public IActionResult GetCollections(int userId)
         {
-            if (userId == null)
-                return BadRequest();
-
             var response = _collectionsService.RetrieveAll(userId).Result;
 
             if (!response.IsSuccessStatusCode)
@@ -124,7 +124,7 @@ namespace GatewayAPI.Controllers
             Collection collection = new Collection()
             {
                 Name = model.Name,
-                Owner = GetUserSub(),
+                Owner = GetUserId(),
                 ImageEnabled = model.ImageEnabled,
                 DisplayFormat = model.ImageEnabled ? (model.GridDisplay == true ? CollectionDisplayFormat.Grid : CollectionDisplayFormat.List) : CollectionDisplayFormat.List,
                 CollectionItems = new List<CollectionItem>()
@@ -173,7 +173,7 @@ namespace GatewayAPI.Controllers
 
             var collection = JsonConvert.DeserializeObject<Collection>(await response.Content.ReadAsStringAsync());
 
-            if (collection.Owner != GetUserSub())
+            if (collection.Owner != GetUserId())
                 return Unauthorized();
 
             if (collection.ImageEnabled)
@@ -246,7 +246,7 @@ namespace GatewayAPI.Controllers
 
                 var response = await _blobService.ImageUpload(content);
                 if (!response.IsSuccessStatusCode)
-                    StatusCode(StatusCodes.Status500InternalServerError);
+                    return StatusCode(StatusCodes.Status500InternalServerError);
 
                 imgId = JsonConvert.DeserializeObject<string>(await response.Content.ReadAsStringAsync());
             }
@@ -260,7 +260,7 @@ namespace GatewayAPI.Controllers
             };
 
             if (!_collectionsService.CreateItem(model.CollectionId, item).Result.IsSuccessStatusCode)
-                StatusCode(StatusCodes.Status500InternalServerError);
+                return StatusCode(StatusCodes.Status500InternalServerError);
 
             return Ok();
         }
@@ -273,7 +273,7 @@ namespace GatewayAPI.Controllers
 
             var response = await _collectionsService.RetrieveItem(model.CollectionId, model.Id);
             if (!response.IsSuccessStatusCode)
-                StatusCode(StatusCodes.Status500InternalServerError);
+                return StatusCode(StatusCodes.Status500InternalServerError);
 
             var item = JsonConvert.DeserializeObject<CollectionItem>(await response.Content.ReadAsStringAsync());
 
@@ -294,7 +294,7 @@ namespace GatewayAPI.Controllers
                 }
 
                 if (!response.IsSuccessStatusCode)
-                    StatusCode(StatusCodes.Status500InternalServerError);
+                    return StatusCode(StatusCodes.Status500InternalServerError);
             }
 
             CollectionItem updatedItem = new CollectionItem()
@@ -306,7 +306,7 @@ namespace GatewayAPI.Controllers
             };
 
             if (!_collectionsService.UpdateItem(model.CollectionId, updatedItem).Result.IsSuccessStatusCode)
-                StatusCode(StatusCodes.Status500InternalServerError);
+                return StatusCode(StatusCodes.Status500InternalServerError);
 
             return Ok();
         }
@@ -319,7 +319,7 @@ namespace GatewayAPI.Controllers
 
             var response = await _collectionsService.Retrieve(model.CollectionId);
             if (!response.IsSuccessStatusCode)
-                StatusCode(StatusCodes.Status500InternalServerError);
+                return StatusCode(StatusCodes.Status500InternalServerError);
 
             var collection = JsonConvert.DeserializeObject<Collection>(await response.Content.ReadAsStringAsync());
 
@@ -331,13 +331,13 @@ namespace GatewayAPI.Controllers
             if (collection.ImageEnabled && itemImageId != null && itemImageId != "")
             {
                 if (!_blobService.ImageDelete(itemImageId).Result.IsSuccessStatusCode)
-                    StatusCode(StatusCodes.Status500InternalServerError);
+                    return StatusCode(StatusCodes.Status500InternalServerError);
             }
 
             var content = JsonConvert.SerializeObject(itemIds);
 
             if (!_collectionsService.DeleteItem(model.CollectionId, content).Result.IsSuccessStatusCode)
-                StatusCode(StatusCodes.Status500InternalServerError);
+                return StatusCode(StatusCodes.Status500InternalServerError);
 
             return Ok();
         }
@@ -352,6 +352,15 @@ namespace GatewayAPI.Controllers
             }
 
             return sub;
+        }
+
+        private int GetUserId()
+        {
+            var response = _userService.GetUserBySub(GetUserSub()).Result;
+
+            var user = JsonConvert.DeserializeObject<UserDetails>(response.Content.ReadAsStringAsync().Result);
+
+            return user.Id;
         }
 
         private HttpResponseMessage MapThumbnails(Collection collection)

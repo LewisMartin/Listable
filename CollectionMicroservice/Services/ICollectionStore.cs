@@ -10,7 +10,7 @@ namespace Listable.CollectionMicroservice.Services
 
         IEnumerable<Collection> GetAllCollections();
 
-        IEnumerable<Collection> GetAllCollectionsForUser(string userId);
+        IEnumerable<Collection> GetAllCollectionsForUser(int userId);
 
         Collection GetCollection(string id);
 

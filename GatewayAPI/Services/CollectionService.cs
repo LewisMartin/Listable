@@ -31,7 +31,7 @@ namespace GatewayAPI.Services
             return await APIRequest(CollectionApiAction.Retrieve, "?collectionId=" + collectionId);
         }
 
-        public async Task<HttpResponseMessage> RetrieveAll(string userId)
+        public async Task<HttpResponseMessage> RetrieveAll(int userId)
         {
             return await APIRequest(CollectionApiAction.RetrieveAll, "?userId=" + userId);
         }

@@ -8,7 +8,7 @@ namespace GatewayAPI.Services
     {
         Task<HttpResponseMessage> Retrieve(string collectionId);
 
-        Task<HttpResponseMessage> RetrieveAll(string userId);
+        Task<HttpResponseMessage> RetrieveAll(int userId);
 
         Task<HttpResponseMessage> RetrieveItem(string collectionId, string itemId);
 
