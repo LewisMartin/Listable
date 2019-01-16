@@ -12,6 +12,8 @@ namespace Listable.CollectionMicroservice.Services
 
         IEnumerable<Collection> GetAllCollectionsForUser(int userId);
 
+        IEnumerable<Collection> QueryCollections(CollectionQuery query);
+
         Collection GetCollection(string id);
 
         CollectionItem GetCollectionItem(string collectionId, Guid itemId);

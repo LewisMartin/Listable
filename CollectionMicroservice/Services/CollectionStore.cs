@@ -41,6 +41,14 @@ namespace Listable.CollectionMicroservice.Services
                                             .OrderBy(c => c.Name);
         }
 
+        public IEnumerable<Collection> QueryCollections(CollectionQuery query)
+        {
+            return _docClient.CreateDocumentQuery<Collection>(_collectionsLink)
+                                            .Where(c => c.Name.Contains(query.SearchTerm))
+                                            .Take(50)
+                                            .ToList();
+        }
+
         public Collection GetCollection(string id)
         {
             return _docClient.CreateDocumentQuery<Collection>(_collectionsLink)

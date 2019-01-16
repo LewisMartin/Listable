@@ -42,6 +42,16 @@ namespace Listable.CollectionMicroservice.Controllers
             return Json(_collectionStore.GetAllCollectionsForUser(userId).ToList());
         }
 
+        // GET collections/query
+        [HttpPost]
+        public IActionResult Query([FromBody] CollectionQuery query)
+        {
+            if (query == null)
+                return BadRequest();
+
+            return Json(_collectionStore.QueryCollections(query).ToList());
+        }
+
         // GET collections/retrieveall
         [HttpGet]
         public IActionResult RetrieveItem(string collectionId, string itemId)
