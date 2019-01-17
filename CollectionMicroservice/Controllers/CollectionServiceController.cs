@@ -20,6 +20,26 @@ namespace Listable.CollectionMicroservice.Controllers
             _collectionStore = collectionStore;
         }
 
+        // GET collections/checkpermissions
+        [HttpGet]
+        public IActionResult CheckPermissions(int userId, string collectionId, PermissionType permType)
+        {
+            if (collectionId == null)
+                return BadRequest();
+
+            var collection = _collectionStore.GetCollection(collectionId);
+
+            if(permType == PermissionType.Edit)
+            {
+                if(collection.Owner != userId)
+                    return Unauthorized();
+
+                return Ok();
+            }
+
+            return Ok();
+        }
+
         // GET collections/retrieve
         [HttpGet]
         public IActionResult Retrieve(string collectionId)

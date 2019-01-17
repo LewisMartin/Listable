@@ -96,6 +96,9 @@ namespace GatewayAPI.Controllers
             if (id == null)
                 return BadRequest();
 
+            if (!UserHasPermissionsOnCollection(id, PermissionType.View))
+                return Forbid();
+
             var response = _collectionsService.Retrieve(id).Result;
 
             if (!response.IsSuccessStatusCode)
@@ -133,6 +136,9 @@ namespace GatewayAPI.Controllers
         {
             if (id == null)
                 return BadRequest();
+
+            if (!UserHasPermissionsOnCollection(id, PermissionType.Edit))
+                return Forbid();
 
             var response = _collectionsService.Retrieve(id).Result;
 
@@ -181,6 +187,9 @@ namespace GatewayAPI.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
+            if (!UserHasPermissionsOnCollection(model.Id, PermissionType.Edit))
+                return Forbid();
+
             var response = await _collectionsService.Retrieve(model.Id);
             if (!response.IsSuccessStatusCode)
                 return StatusCode(StatusCodes.Status500InternalServerError);
@@ -202,6 +211,9 @@ namespace GatewayAPI.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
+            if (!UserHasPermissionsOnCollection(model.SelectedCollectionId, PermissionType.Edit))
+                return Forbid();
+
             var response = await _collectionsService.Retrieve(model.SelectedCollectionId);
             if (!response.IsSuccessStatusCode)
                 return StatusCode(StatusCodes.Status500InternalServerError);
@@ -209,7 +221,7 @@ namespace GatewayAPI.Controllers
             var collection = JsonConvert.DeserializeObject<Collection>(await response.Content.ReadAsStringAsync());
 
             if (collection.Owner != GetUserId())
-                return Unauthorized();
+                return Forbid();
 
             if (collection.ImageEnabled)
             {
@@ -234,6 +246,9 @@ namespace GatewayAPI.Controllers
         {
             if (collectionId == null || itemId == null)
                 return BadRequest();
+
+            if (!UserHasPermissionsOnCollection(collectionId, PermissionType.View))
+                return Forbid();
 
             var response = await _collectionsService.Retrieve(collectionId);
             if (!response.IsSuccessStatusCode)
@@ -274,6 +289,9 @@ namespace GatewayAPI.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
+            if (!UserHasPermissionsOnCollection(model.CollectionId, PermissionType.Edit))
+                return Forbid();
+
             string imgId = "";
             if (model.ImageFile != null && model.ImageFile.Length > 0)
             {
@@ -305,6 +323,9 @@ namespace GatewayAPI.Controllers
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
+
+            if (!UserHasPermissionsOnCollection(model.CollectionId, PermissionType.Edit))
+                return Forbid();
 
             var response = await _collectionsService.RetrieveItem(model.CollectionId, model.Id);
             if (!response.IsSuccessStatusCode)
@@ -352,6 +373,9 @@ namespace GatewayAPI.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
+            if (!UserHasPermissionsOnCollection(model.CollectionId, PermissionType.Edit))
+                return Forbid();
+
             var response = await _collectionsService.Retrieve(model.CollectionId);
             if (!response.IsSuccessStatusCode)
                 return StatusCode(StatusCodes.Status500InternalServerError);
@@ -396,6 +420,16 @@ namespace GatewayAPI.Controllers
             var user = JsonConvert.DeserializeObject<UserDetails>(response.Content.ReadAsStringAsync().Result);
 
             return user.Id;
+        }
+
+        private bool UserHasPermissionsOnCollection(string collectionId, PermissionType permType)
+        {
+            var response = _collectionsService.CheckPermissions(GetUserId(), collectionId, permType).Result;
+
+            if (!response.IsSuccessStatusCode)
+                return false;
+
+            return true;
         }
 
         private HttpResponseMessage MapThumbnails(Collection collection)

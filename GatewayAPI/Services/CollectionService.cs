@@ -11,6 +11,7 @@ namespace GatewayAPI.Services
 {
     public enum CollectionApiAction
     {
+        CheckPermissions,
         Retrieve,
         RetrieveAll,
         Query,
@@ -26,6 +27,11 @@ namespace GatewayAPI.Services
     public class CollectionService : BackendService<CollectionApiAction>, ICollectionsService
     {
         public CollectionService(IConfiguration configuration, IDistributedCache cache, IHttpContextAccessor accessor) : base(configuration, cache, accessor) { }
+
+        public async Task<HttpResponseMessage> CheckPermissions(int userId, string collectionId, PermissionType permType)
+        {
+            return await APIRequest(CollectionApiAction.CheckPermissions, "?userId=" + userId + "&collectionId=" + collectionId + "&permType=" + permType);
+        }
 
         public async Task<HttpResponseMessage> Retrieve(string collectionId)
         {
@@ -94,6 +100,8 @@ namespace GatewayAPI.Services
         {
             switch (action)
             {
+                case CollectionApiAction.CheckPermissions:
+                    return new HttpRequestMessage(HttpMethod.Get, _configuration["CollectionAPI:APIEndpoint"] + "/checkpermissions" + uriParams);
                 case CollectionApiAction.Retrieve:
                     return new HttpRequestMessage(HttpMethod.Get, (_configuration["CollectionAPI:APIEndpoint"] + "/retrieve" + uriParams));
                 case CollectionApiAction.RetrieveAll:

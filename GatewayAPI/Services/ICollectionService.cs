@@ -6,6 +6,8 @@ namespace GatewayAPI.Services
 {
     public interface ICollectionsService
     {
+        Task<HttpResponseMessage> CheckPermissions(int userId, string collectionId, PermissionType permType);
+
         Task<HttpResponseMessage> Retrieve(string collectionId);
 
         Task<HttpResponseMessage> RetrieveAll(int userId);
