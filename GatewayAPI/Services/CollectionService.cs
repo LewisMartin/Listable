@@ -13,6 +13,7 @@ namespace GatewayAPI.Services
     {
         Retrieve,
         RetrieveAll,
+        Query,
         RetrieveItem,
         Create,
         CreateItem,
@@ -34,6 +35,11 @@ namespace GatewayAPI.Services
         public async Task<HttpResponseMessage> RetrieveAll(int userId)
         {
             return await APIRequest(CollectionApiAction.RetrieveAll, "?userId=" + userId);
+        }
+
+        public async Task<HttpResponseMessage> Query(CollectionQuery query)
+        {
+            return await APIRequest(CollectionApiAction.Query, "", new StringContent(JsonConvert.SerializeObject(query).ToString(), Encoding.UTF8, "application/json"));
         }
 
         public async Task<HttpResponseMessage> Create(Collection collection)
@@ -75,7 +81,7 @@ namespace GatewayAPI.Services
         {
             var req = CreateAPIRequestMessage(action, uriParams);
 
-            if (action == CollectionApiAction.Create || action == CollectionApiAction.Update || action == CollectionApiAction.UpdateItem || action == CollectionApiAction.CreateItem || action == CollectionApiAction.DeleteItem)
+            if (action == CollectionApiAction.Query || action == CollectionApiAction.Create || action == CollectionApiAction.Update || action == CollectionApiAction.UpdateItem || action == CollectionApiAction.CreateItem || action == CollectionApiAction.DeleteItem)
                 req.Content = content;
 
             string accessToken = await GetAccessTokenAsync(BackendAPI.CollectionAPI);
@@ -92,6 +98,8 @@ namespace GatewayAPI.Services
                     return new HttpRequestMessage(HttpMethod.Get, (_configuration["CollectionAPI:APIEndpoint"] + "/retrieve" + uriParams));
                 case CollectionApiAction.RetrieveAll:
                     return new HttpRequestMessage(HttpMethod.Get, (_configuration["CollectionAPI:APIEndpoint"] + "/retrieveall" + uriParams));
+                case CollectionApiAction.Query:
+                    return new HttpRequestMessage(HttpMethod.Post, (_configuration["CollectionAPI:APIEndpoint"] + "/query" + uriParams));
                 case CollectionApiAction.RetrieveItem:
                     return new HttpRequestMessage(HttpMethod.Get, (_configuration["CollectionAPI:APIEndpoint"] + "/retrieveitem" + uriParams));
                 case CollectionApiAction.Create:

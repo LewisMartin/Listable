@@ -55,6 +55,41 @@ namespace GatewayAPI.Controllers
             return Ok(collections);
         }  
         
+        [HttpPost]
+        public IActionResult QueryCollections([FromBody] CollectionQueryFormModel model)
+        {
+            var response = _collectionsService.Query(new CollectionQuery() {
+                SearchTerm = model.SearchTerm
+            }).Result;
+
+            if (!response.IsSuccessStatusCode)
+                return BadRequest();
+
+            var collections = JsonConvert.DeserializeObject<List<Collection>>(response.Content.ReadAsStringAsync().Result);
+
+            if (collections == null)
+                return NotFound();
+
+            var queryResults = new List<CollectionQueryResult>();
+
+            foreach (var collection in collections)
+            {
+                queryResults.Add(new CollectionQueryResult()
+                {
+                    Id = collection.Id,
+                    Name = collection.Name,
+                    CollectionSize = collection.CollectionItems.Count(),
+                    ImageEnabled = collection.ImageEnabled
+                });
+            }
+
+            return Json(new CollectionQueryResults()
+            {
+                Count = queryResults.Count(),
+                QueryResults = queryResults
+            });
+        }
+
         [HttpGet]
         public async Task<IActionResult> GetCollection(string id)
         {
