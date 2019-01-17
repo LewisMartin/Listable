@@ -29,15 +29,20 @@ namespace Listable.CollectionMicroservice.Controllers
 
             var collection = _collectionStore.GetCollection(collectionId);
 
-            if(permType == PermissionType.Edit)
+            if (permType == PermissionType.Edit)
             {
-                if(collection.Owner != userId)
+                if (collection.Owner != userId)
                     return Unauthorized();
 
                 return Ok();
             }
+            else
+            {
+                if (collection.PrivateMode && collection.Owner != userId)
+                    return Unauthorized();
 
-            return Ok();
+                return Ok();
+            }
         }
 
         // GET collections/retrieve

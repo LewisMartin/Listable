@@ -151,6 +151,7 @@ namespace GatewayAPI.Controllers
             {
                 Id = collection.Id,
                 Name = collection.Name,
+                PrivateMode = collection.PrivateMode,
                 ImageEnabled = collection.ImageEnabled,
                 GridDisplay = collection.DisplayFormat == CollectionDisplayFormat.Grid ? true : false
             });
@@ -166,6 +167,7 @@ namespace GatewayAPI.Controllers
             {
                 Name = model.Name,
                 Owner = GetUserId(),
+                PrivateMode = model.PrivateMode,
                 ImageEnabled = model.ImageEnabled,
                 DisplayFormat = model.ImageEnabled ? (model.GridDisplay == true ? CollectionDisplayFormat.Grid : CollectionDisplayFormat.List) : CollectionDisplayFormat.List,
                 CollectionItems = new List<CollectionItem>()
@@ -197,6 +199,7 @@ namespace GatewayAPI.Controllers
             var collection = JsonConvert.DeserializeObject<Collection>(await response.Content.ReadAsStringAsync());
 
             collection.Name = model.Name;
+            collection.PrivateMode = model.PrivateMode;
             collection.DisplayFormat = model.GridDisplay == true ? CollectionDisplayFormat.Grid : CollectionDisplayFormat.List;
 
             if (!_collectionsService.Update(collection).Result.IsSuccessStatusCode)

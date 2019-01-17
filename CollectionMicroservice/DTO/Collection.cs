@@ -19,6 +19,8 @@ namespace Listable.CollectionMicroservice.DTO
 
         public string Name { get; set; }
 
+        public bool PrivateMode { get; set; }
+
         public bool ImageEnabled { get; set; }
 
         public CollectionDisplayFormat DisplayFormat { get; set; }

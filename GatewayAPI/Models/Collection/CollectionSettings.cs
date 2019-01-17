@@ -11,6 +11,8 @@ namespace GatewayAPI.Models.Collection
 
         public string Name { get; set; }
 
+        public bool PrivateMode { get; set; }
+
         public bool ImageEnabled { get; set; }
 
         public bool GridDisplay { get; set; }

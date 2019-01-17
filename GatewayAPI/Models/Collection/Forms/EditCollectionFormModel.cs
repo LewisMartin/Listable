@@ -11,6 +11,9 @@ namespace GatewayAPI.Models.Collection.Forms
         public string Name { get; set; }
 
         [Required]
+        public bool PrivateMode { get; set; }
+
+        [Required]
         public bool GridDisplay { get; set; }
     }
 }

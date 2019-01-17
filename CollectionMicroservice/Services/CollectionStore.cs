@@ -44,7 +44,7 @@ namespace Listable.CollectionMicroservice.Services
         public IEnumerable<Collection> QueryCollections(CollectionQuery query)
         {
             return _docClient.CreateDocumentQuery<Collection>(_collectionsLink)
-                                            .Where(c => c.Name.Contains(query.SearchTerm))
+                                            .Where(c => c.Name.Contains(query.SearchTerm) && !c.PrivateMode)
                                             .Take(50)
                                             .ToList();
         }
