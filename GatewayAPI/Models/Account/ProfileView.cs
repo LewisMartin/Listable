@@ -11,5 +11,7 @@ namespace GatewayAPI.Models.Account
         public string FirstName { get; set; }
 
         public string LastName { get; set; }
+
+        public bool DisplayPrivateProfile { get; set; }
     }
 }

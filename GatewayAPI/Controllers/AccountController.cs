@@ -58,7 +58,8 @@ namespace GatewayAPI.Controllers
                 Id = userDetails.Id,
                 DisplayName = userDetails.DisplayName,
                 FirstName = userDetails.FirstName,
-                LastName = userDetails.LastName
+                LastName = userDetails.LastName,
+                DisplayPrivateProfile = false
             });
         }
 
@@ -77,7 +78,8 @@ namespace GatewayAPI.Controllers
                 Id = userDetails.Id,
                 DisplayName = userDetails.DisplayName,
                 FirstName = userDetails.FirstName,
-                LastName = userDetails.LastName
+                LastName = userDetails.LastName,
+                DisplayPrivateProfile = true
             });
         }
 
@@ -87,7 +89,13 @@ namespace GatewayAPI.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var response = _userService.UpdateUser(new UserDetails()
+            var response = _userService.GetUserBySub(GetUserSub()).Result;
+            var authenticatedUser = JsonConvert.DeserializeObject<UserDetails>(response.Content.ReadAsStringAsync().Result);
+
+            if (model.Id != authenticatedUser.Id)
+                return Forbid();
+
+            response = _userService.UpdateUser(new UserDetails()
             {
                 Id = model.Id,
                 DisplayName = model.DisplayName,
