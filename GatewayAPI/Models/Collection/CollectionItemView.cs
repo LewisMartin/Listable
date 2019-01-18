@@ -20,5 +20,7 @@ namespace GatewayAPI.Models.Collection
         public bool ShowImage { get; set; }
 
         public string ImageUrl { get; set; }
+
+        public bool DisplayOwnerOptions { get; set; }
     }
 }

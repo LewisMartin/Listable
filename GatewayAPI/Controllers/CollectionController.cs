@@ -36,7 +36,7 @@ namespace GatewayAPI.Controllers
         [HttpGet]
         public IActionResult GetCollectionsForAuthenticatedUser()
         {
-            return GetCollections(GetUserId());
+            return GetCollections(GetUser().Id);
         }
 
         [HttpGet]
@@ -127,7 +127,10 @@ namespace GatewayAPI.Controllers
                     Id = item.Id.ToString(),
                     Name = item.Name,
                     ThumbnailUri = (item.ImageId != null) && (thumbnailMap.ContainsKey(item.ImageId)) ? thumbnailMap[item.ImageId] : ""
-                }).ToList()
+                }).ToList(),
+                DisplayOwnerOptions = GetUser().Id == collection.Owner ? true : false,
+                OwnerId = collection.Owner,
+                OwnerDisplayName = GetUser(collection.Owner).DisplayName
             });
         }
 
@@ -166,7 +169,7 @@ namespace GatewayAPI.Controllers
             Collection collection = new Collection()
             {
                 Name = model.Name,
-                Owner = GetUserId(),
+                Owner = GetUser().Id,
                 PrivateMode = model.PrivateMode,
                 ImageEnabled = model.ImageEnabled,
                 DisplayFormat = model.ImageEnabled ? (model.GridDisplay == true ? CollectionDisplayFormat.Grid : CollectionDisplayFormat.List) : CollectionDisplayFormat.List,
@@ -223,7 +226,7 @@ namespace GatewayAPI.Controllers
 
             var collection = JsonConvert.DeserializeObject<Collection>(await response.Content.ReadAsStringAsync());
 
-            if (collection.Owner != GetUserId())
+            if (collection.Owner != GetUser().Id)
                 return Forbid();
 
             if (collection.ImageEnabled)
@@ -282,7 +285,8 @@ namespace GatewayAPI.Controllers
                 Name = item.Name,
                 Description = item.Description,
                 ShowImage = collection.ImageEnabled,
-                ImageUrl = url
+                ImageUrl = url,
+                DisplayOwnerOptions = GetUser().Id == collection.Owner ? true : false
             });
         }
 
@@ -416,18 +420,23 @@ namespace GatewayAPI.Controllers
             return sub;
         }
 
-        private int GetUserId()
+        private UserDetails GetUser()
         {
             var response = _userService.GetUserBySub(GetUserSub()).Result;
 
-            var user = JsonConvert.DeserializeObject<UserDetails>(response.Content.ReadAsStringAsync().Result);
+            return JsonConvert.DeserializeObject<UserDetails>(response.Content.ReadAsStringAsync().Result);
+        }
 
-            return user.Id;
+        private UserDetails GetUser(int userId)
+        {
+            var response = _userService.GetUser(userId).Result;
+
+            return JsonConvert.DeserializeObject<UserDetails>(response.Content.ReadAsStringAsync().Result);
         }
 
         private bool UserHasPermissionsOnCollection(string collectionId, PermissionType permType)
         {
-            var response = _collectionsService.CheckPermissions(GetUserId(), collectionId, permType).Result;
+            var response = _collectionsService.CheckPermissions(GetUser().Id, collectionId, permType).Result;
 
             if (!response.IsSuccessStatusCode)
                 return false;

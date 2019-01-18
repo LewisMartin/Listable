@@ -11,6 +11,12 @@ namespace GatewayAPI.Models.Collection
         public bool GridDisplay { get; set; }
 
         public List<CollectionViewItem> CollectionViewItems { get; set; }
+
+        public bool DisplayOwnerOptions { get; set; }
+
+        public int OwnerId { get; set; }
+
+        public string OwnerDisplayName { get; set; }
     }
 
     public class CollectionViewItem
