@@ -36,7 +36,7 @@ namespace Listable.CollectionMicroservice.Tests.Controllers
             _dummyCollection = new Collection()
             {
                 Id = "1",
-                Owner = "User1",
+                Owner = 1,
                 Name = "Collection1",
                 ImageEnabled = false,
                 DisplayFormat = CollectionDisplayFormat.List,
@@ -101,7 +101,7 @@ namespace Listable.CollectionMicroservice.Tests.Controllers
             // Arrange:
 
             // Act:
-            var res = _Controller.RetrieveAll(null);
+            var res = _Controller.RetrieveAll(0);
 
             // Assert:
             Assert.IsInstanceOf<BadRequestResult>(res);
@@ -114,7 +114,7 @@ namespace Listable.CollectionMicroservice.Tests.Controllers
             _Controller.Create(_dummyCollection);
 
             // Act:
-            var res = _Controller.RetrieveAll("User1");
+            var res = _Controller.RetrieveAll(1);
 
             // Assert:
             Assert.IsInstanceOf<JsonResult>(res);
