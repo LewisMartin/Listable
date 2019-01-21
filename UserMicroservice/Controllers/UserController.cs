@@ -118,18 +118,10 @@ namespace Listable.UserMicroservice.Controllers
         [HttpGet]
         public IActionResult CheckDisplayName(string displayName)
         {
-            if (IsDisplayNameAvailable(displayName))
-                return Ok();
-            else
+            if (_DbContext.Users.Any(u => u.DisplayName.ToLower() == displayName.ToLower()))
                 return BadRequest();
-        }
-
-        private bool IsDisplayNameAvailable(string desiredName)
-        {
-            if (_DbContext.Users.Any(u => u.DisplayName.ToLower() == desiredName.ToLower()))
-                return false;
-            
-            return true;
+            else
+                return Ok();
         }
     }
 }
