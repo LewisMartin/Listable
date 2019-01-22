@@ -29,7 +29,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GatewayAPI.Tests", "Gateway
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UserMicroservice", "UserMicroservice\UserMicroservice.csproj", "{6BDF51C0-CCD9-4325-8164-496AF9A2119F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UserMicroservice.Tests", "UserMicroservice.Tests\UserMicroservice.Tests.csproj", "{30C0F52D-316B-4ACA-824E-C3783026E94C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UserMicroservice.Tests", "UserMicroservice.Tests\UserMicroservice.Tests.csproj", "{30C0F52D-316B-4ACA-824E-C3783026E94C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -42,7 +42,6 @@ Global
 		{0C58ED19-B434-44D0-A687-C4957FD67BD8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0C58ED19-B434-44D0-A687-C4957FD67BD8}.Release|Any CPU.Build.0 = Release|Any CPU
 		{E061AFCC-0205-454F-8527-A09AA127103A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E061AFCC-0205-454F-8527-A09AA127103A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E061AFCC-0205-454F-8527-A09AA127103A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E061AFCC-0205-454F-8527-A09AA127103A}.Release|Any CPU.Build.0 = Release|Any CPU
 		{2FA51AF9-4B39-4170-8071-ADB7608DFA2A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -50,7 +49,6 @@ Global
 		{2FA51AF9-4B39-4170-8071-ADB7608DFA2A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2FA51AF9-4B39-4170-8071-ADB7608DFA2A}.Release|Any CPU.Build.0 = Release|Any CPU
 		{4E278B9C-812A-42D1-BAEC-E537F5473DE3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4E278B9C-812A-42D1-BAEC-E537F5473DE3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4E278B9C-812A-42D1-BAEC-E537F5473DE3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4E278B9C-812A-42D1-BAEC-E537F5473DE3}.Release|Any CPU.Build.0 = Release|Any CPU
 		{692FAC97-2DD9-4CE2-8E25-7F09544D1FC9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
