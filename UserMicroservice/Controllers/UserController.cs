@@ -34,6 +34,9 @@ namespace Listable.UserMicroservice.Controllers
         [HttpGet]
         public IActionResult GetUserBySub(string subjectId)
         {
+            if (subjectId == null)
+                return BadRequest();
+
             var user = _DbContext.Users.FirstOrDefault(u => u.SubjectId == subjectId);
 
             if (user != null)
@@ -45,6 +48,9 @@ namespace Listable.UserMicroservice.Controllers
         [HttpGet]
         public IActionResult CheckForUserEntry(string subjectId)
         {
+            if (subjectId == null)
+                return BadRequest();
+
             if (_DbContext.Users.Any(u => u.SubjectId == subjectId))
                 return Ok();
             else
