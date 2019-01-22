@@ -31,7 +31,7 @@ namespace Listable.CollectionMicroservice.Tests.Mocks
             throw new NotImplementedException();
         }
 
-        public IEnumerable<Collection> GetAllCollectionsForUser(string userId)
+        public IEnumerable<Collection> GetAllCollectionsForUser(int userId)
         {
             return _collections.Where(c => c.Owner == userId);
         }
@@ -58,6 +58,11 @@ namespace Listable.CollectionMicroservice.Tests.Mocks
             _collections.Add(collection);
 
             return collection;
+        }
+
+        public IEnumerable<Collection> QueryCollections(CollectionQuery query)
+        {
+            return _collections.Where(c => c.Name.ToLower().Contains(query.SearchTerm.ToLower())).ToList();
         }
 
         public bool UpdateCollection(string id, Collection updatedCollection)

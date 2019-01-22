@@ -96,18 +96,6 @@ namespace Listable.CollectionMicroservice.Tests.Controllers
         }
 
         [Test]
-        public void RetrieveAll_GET_ReturnsBadRequest_OnNullParameter()
-        {
-            // Arrange:
-
-            // Act:
-            var res = _Controller.RetrieveAll(0);
-
-            // Assert:
-            Assert.IsInstanceOf<BadRequestResult>(res);
-        }
-
-        [Test]
         public void RetrieveAll_GET_ReturnsJsonResult_OnSuccess()
         {
             // Arrange:
@@ -268,6 +256,88 @@ namespace Listable.CollectionMicroservice.Tests.Controllers
 
             // Assert:
             Assert.IsInstanceOf<OkResult>(res);
+        }
+
+        [Test]
+        public void CheckPermissions_GET_ReturnsBadRequest_OnNullParams()
+        {
+            // Arrange:
+            _Controller.Create(_dummyCollection);
+
+            // Act:
+            var res = _Controller.CheckPermissions(_dummyCollection.Owner, null, PermissionType.View);
+
+            // Assert:
+            Assert.IsInstanceOf<BadRequestResult>(res);
+        }
+
+        [Test]
+        public void CheckPermissions_GET_ReturnsUnauthorized_OnEditPermissionIssue()
+        {
+            // Arrange:
+            _Controller.Create(_dummyCollection);
+
+            // Act:
+            var res = _Controller.CheckPermissions(_dummyCollection.Owner + 1, _dummyCollection.Id, PermissionType.Edit);
+
+            // Assert:
+            Assert.IsInstanceOf<UnauthorizedResult>(res);
+        }
+
+        [Test]
+        public void CheckPermissions_GET_ReturnsOk_OnEditPermissionSuccess()
+        {
+            // Arrange:
+            _Controller.Create(_dummyCollection);
+
+            // Act:
+            var res = _Controller.CheckPermissions(_dummyCollection.Owner, _dummyCollection.Id, PermissionType.Edit);
+
+            // Assert:
+            Assert.IsInstanceOf<OkResult>(res);
+        }
+
+        [Test]
+        public void CheckPermissions_GET_ReturnsOk_OnViewPermissionSuccess()
+        {
+            // Arrange:
+            _Controller.Create(_dummyCollection);
+
+            // Act:
+            var res = _Controller.CheckPermissions(_dummyCollection.Owner + 1, _dummyCollection.Id, PermissionType.View);
+
+            // Assert:
+            Assert.IsInstanceOf<OkResult>(res);
+        }
+
+        [Test]
+        public void Query_POST_ReturnsBadRequest_OnNullParams()
+        {
+            // Arrange:
+            _Controller.Create(_dummyCollection);
+
+            // Act:
+            var res = _Controller.Query(null);
+
+            // Assert:
+            Assert.IsInstanceOf<BadRequestResult>(res);
+        }
+
+        [Test]
+        public void Query_POST_ReturnsJsonResult_OnSuccess()
+        {
+            // Arrange:
+            _Controller.Create(_dummyCollection);
+
+            // Act:
+            var res = _Controller.Query(new CollectionQuery()
+            {
+                SearchTerm = _dummyCollection.Name
+            });
+
+            // Assert:
+            Assert.IsInstanceOf<JsonResult>(res);
+            Assert.IsInstanceOf<IEnumerable<Collection>>(((JsonResult)res).Value);
         }
     }
 }

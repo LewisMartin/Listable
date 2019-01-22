@@ -77,7 +77,7 @@ namespace GatewayAPI.Tests.Mocks
                 new Collection()
                 {
                     Id = "1",
-                    Owner = "TestUser",
+                    Owner = 1,
                     Name = "Collection 1",
                     ImageEnabled = false,
                     DisplayFormat = CollectionDisplayFormat.List,
@@ -95,7 +95,7 @@ namespace GatewayAPI.Tests.Mocks
                 new Collection()
                 {
                     Id = "2",
-                    Owner = "TestUser",
+                    Owner = 2,
                     Name = "Collection 2",
                     ImageEnabled = true,
                     DisplayFormat = CollectionDisplayFormat.Grid,
@@ -125,6 +125,21 @@ namespace GatewayAPI.Tests.Mocks
                 StatusCode = System.Net.HttpStatusCode.OK,
                 Content = new StringContent(JsonConvert.SerializeObject(DummyCollections.FirstOrDefault(c => c.Id == collectionId).CollectionItems.FirstOrDefault(i => i.Id.ToString() == itemId)))
             });
+        }
+
+        public Task<HttpResponseMessage> CheckPermissions(int userId, string collectionId, PermissionType permType)
+        {
+            return Task.FromResult(new HttpResponseMessage() { StatusCode = System.Net.HttpStatusCode.OK });
+        }
+
+        public Task<HttpResponseMessage> RetrieveAll(int userId)
+        {
+            return Task.FromResult(new HttpResponseMessage() { StatusCode = System.Net.HttpStatusCode.OK });
+        }
+
+        public Task<HttpResponseMessage> Query(CollectionQuery query)
+        {
+            return Task.FromResult(new HttpResponseMessage() { StatusCode = System.Net.HttpStatusCode.OK });
         }
     }
 }
