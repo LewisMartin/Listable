@@ -61,7 +61,7 @@ namespace GatewayAPI.Tests.Mocks
             });
         }
 
-        public Task<HttpResponseMessage> RetrieveAll(string userId)
+        public Task<HttpResponseMessage> RetrieveAll(int userId)
         {
             return Task.FromResult(new HttpResponseMessage()
             {
@@ -132,14 +132,17 @@ namespace GatewayAPI.Tests.Mocks
             return Task.FromResult(new HttpResponseMessage() { StatusCode = System.Net.HttpStatusCode.OK });
         }
 
-        public Task<HttpResponseMessage> RetrieveAll(int userId)
-        {
-            return Task.FromResult(new HttpResponseMessage() { StatusCode = System.Net.HttpStatusCode.OK });
-        }
-
         public Task<HttpResponseMessage> Query(CollectionQuery query)
         {
-            return Task.FromResult(new HttpResponseMessage() { StatusCode = System.Net.HttpStatusCode.OK });
+            return Task.FromResult(new HttpResponseMessage()
+            {
+                StatusCode = System.Net.HttpStatusCode.OK,
+                Content = new StringContent(JsonConvert.SerializeObject(DummyCollections
+                                                                            .Where(c => c.Name
+                                                                                    .ToLower()
+                                                                                    .Contains(query.SearchTerm.ToLower())
+                                                                             ).ToList()))
+            });
         }
     }
 }

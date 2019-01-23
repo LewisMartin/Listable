@@ -1,8 +1,10 @@
 ﻿using GatewayAPI.Controllers;
+using GatewayAPI.Models.Collection;
 using GatewayAPI.Models.Collection.Forms;
 using GatewayAPI.Tests.Controllers;
 using GatewayAPI.Tests.Mocks;
 using Listable.CollectionMicroservice.DTO;
+using Listable.UserMicroservice.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NUnit.Framework;
@@ -16,9 +18,11 @@ namespace GatewayAPI.Tests.Tests.Controllers
     class CollectionControllerTests : ControllerTestBase<CollectionController>
     {
         protected List<Collection> DummyCollections;
+        protected List<User> DummyUsers;
 
         protected MockBlobService _MockBlobService;
         protected MockCollectionsService _MockCollectionsService;
+        protected MockUserService _MockUserService;
         protected MockImageManipulationService _MockImageManipulationService;
 
         public CollectionControllerTests() : base() { }
@@ -31,8 +35,9 @@ namespace GatewayAPI.Tests.Tests.Controllers
             _MockBlobService = new MockBlobService();
             _MockCollectionsService = new MockCollectionsService(DummyCollections);
             _MockImageManipulationService = new MockImageManipulationService();
+            _MockUserService = new MockUserService(DummyUsers);
 
-            _Controller = new CollectionController(_MockImageManipulationService, _MockBlobService, _MockCollectionsService);
+            _Controller = new CollectionController(_MockImageManipulationService, _MockBlobService, _MockCollectionsService, _MockUserService);
             _Controller.ControllerContext = _MockControllerContext;
         }
 
@@ -47,19 +52,6 @@ namespace GatewayAPI.Tests.Tests.Controllers
 
             // Assert:
             Assert.IsTrue(attributes.Any());
-        }
-
-        [Test]
-        public void GetCollections_ReturnsBadRequest_OnNullParameter()
-        {
-            // Arrange:
-
-            // Act:
-            var result = _Controller.GetCollections(null);
-
-            // Assert:
-            Assert.IsNotNull(result);
-            Assert.IsInstanceOf<BadRequestResult>(result);
         }
 
         [Test]
@@ -375,14 +367,89 @@ namespace GatewayAPI.Tests.Tests.Controllers
             Assert.IsInstanceOf<OkResult>(result);
         }
 
+        [Test]
+        public void QueryCollections_POST_ReturnsBadRequest_OnNullParameter()
+        {
+            // Arrange:
+
+            // Act:
+            var res = _Controller.QueryCollections(null);
+
+            // Assert:
+            Assert.IsInstanceOf<BadRequestResult>(res);
+        }
+
+        [Test]
+        public void QueryCollections_POST_ReturnsNotFound_OnNoMatch()
+        {
+            // Arrange:
+
+            // Act:
+            var res = _Controller.QueryCollections(new CollectionQueryFormModel()
+            {
+                SearchTerm = "#"
+            });
+
+            // Assert:
+            Assert.IsInstanceOf<NotFoundResult>(res);
+        }
+
+        [Test]
+        public void QueryCollections_POST_ReturnsJsonResult_OnSuccess()
+        {
+            // Arrange:
+
+            // Act:
+            var res = _Controller.QueryCollections(new CollectionQueryFormModel()
+            {
+                SearchTerm = DummyCollections.FirstOrDefault().Name
+            });
+
+            // Assert:
+            Assert.IsInstanceOf<JsonResult>(res);
+            Assert.IsInstanceOf<CollectionQueryResults>(((JsonResult)res).Value);
+        }
+
         protected override void SetUpDummyData()
+        {
+            SetUpDummyUsers();
+            SetUpDummyCollections();
+        }
+
+        protected void SetUpDummyUsers()
+        {
+            string sub = "";
+            foreach (var identity in _MockControllerContext.HttpContext.User.Identities)
+            {
+                sub = identity.Claims.Where(c => c.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier").FirstOrDefault().Value;
+            }
+
+            // create two dummy test users too!
+            DummyUsers = new List<User>()
+            {
+                new User()
+                {
+                    Id = 1,
+                    DisplayName = "Test User",
+                    SubjectId = sub
+                },
+                new User()
+                {
+                    Id = 2,
+                    DisplayName = "User2",
+                    SubjectId = "SubjId2"
+                }
+            };
+        }
+
+        protected void SetUpDummyCollections()
         {
             DummyCollections = new List<Collection>()
             {
                 new Collection()
                 {
                     Id = "1",
-                    Owner = "TestUser",
+                    Owner = DummyUsers[0].Id,
                     Name = "Collection 1",
                     ImageEnabled = false,
                     DisplayFormat = CollectionDisplayFormat.List,
@@ -400,7 +467,7 @@ namespace GatewayAPI.Tests.Tests.Controllers
                 new Collection()
                 {
                     Id = "2",
-                    Owner = "TestUser",
+                    Owner = DummyUsers[DummyUsers.Count-1].Id,
                     Name = "Collection 2",
                     ImageEnabled = true,
                     DisplayFormat = CollectionDisplayFormat.Grid,

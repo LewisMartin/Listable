@@ -58,6 +58,9 @@ namespace GatewayAPI.Controllers
         [HttpPost]
         public IActionResult QueryCollections([FromBody] CollectionQueryFormModel model)
         {
+            if (model == null)
+                return BadRequest();
+
             var response = _collectionsService.Query(new CollectionQuery() {
                 SearchTerm = model.SearchTerm
             }).Result;
@@ -67,7 +70,7 @@ namespace GatewayAPI.Controllers
 
             var collections = JsonConvert.DeserializeObject<List<Collection>>(response.Content.ReadAsStringAsync().Result);
 
-            if (collections == null)
+            if (collections == null || collections.Count == 0)
                 return NotFound();
 
             var queryResults = new List<CollectionQueryResult>();
