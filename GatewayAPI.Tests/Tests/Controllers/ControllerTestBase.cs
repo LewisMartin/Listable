@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using NUnit.Framework;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -31,6 +33,19 @@ namespace GatewayAPI.Tests.Controllers
         {
             _Controller.ModelState.Clear();
             TearDownSpecific();
+        }
+
+        [Test]
+        public void Authorize_Attribute_Exists()
+        {
+            // Arrange:
+            Type type = _Controller.GetType();
+
+            // Act:
+            var attributes = type.GetCustomAttributes(typeof(AuthorizeAttribute), true);
+
+            // Assert:
+            Assert.IsTrue(attributes.Any());
         }
 
         public virtual void TearDownSpecific() { }

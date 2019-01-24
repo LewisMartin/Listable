@@ -21,6 +21,9 @@ namespace GatewayAPI.Tests.Mocks
 
         public Task<HttpResponseMessage> CheckDisplayName(string displayName)
         {
+            if(DummyUsers.Any(u => u.DisplayName == displayName))
+                return Task.FromResult(new HttpResponseMessage() { StatusCode = System.Net.HttpStatusCode.BadRequest });
+
             return Task.FromResult(new HttpResponseMessage() { StatusCode = System.Net.HttpStatusCode.OK });
         }
 
@@ -41,19 +44,29 @@ namespace GatewayAPI.Tests.Mocks
 
         public Task<HttpResponseMessage> GetUser(int userId)
         {
+            var user = DummyUsers.Where(u => u.Id == userId).FirstOrDefault();
+
+            if (user == null)
+                return Task.FromResult(new HttpResponseMessage() { StatusCode = System.Net.HttpStatusCode.InternalServerError });
+
             return Task.FromResult(new HttpResponseMessage()
             {
                 StatusCode = System.Net.HttpStatusCode.OK,
-                Content = new StringContent(JsonConvert.SerializeObject(DummyUsers.Where(u => u.Id == userId).FirstOrDefault()))
+                Content = new StringContent(JsonConvert.SerializeObject(user))
             });
         }
 
         public Task<HttpResponseMessage> GetUserBySub(string subjectId)
         {
+            var user = DummyUsers.Where(u => u.SubjectId == subjectId).FirstOrDefault();
+
+            if (user == null)
+                return Task.FromResult(new HttpResponseMessage() { StatusCode = System.Net.HttpStatusCode.InternalServerError });
+
             return Task.FromResult(new HttpResponseMessage()
             {
                 StatusCode = System.Net.HttpStatusCode.OK,
-                Content = new StringContent(JsonConvert.SerializeObject(DummyUsers.Where(u => u.SubjectId == subjectId).FirstOrDefault()))
+                Content = new StringContent(JsonConvert.SerializeObject(user))
             });
         }
 

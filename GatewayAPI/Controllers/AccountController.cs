@@ -90,6 +90,10 @@ namespace GatewayAPI.Controllers
                 return BadRequest(ModelState);
 
             var response = _userService.GetUserBySub(GetUserSub()).Result;
+
+            if (!response.IsSuccessStatusCode)
+                return StatusCode(StatusCodes.Status500InternalServerError);
+
             var authenticatedUser = JsonConvert.DeserializeObject<UserDetails>(response.Content.ReadAsStringAsync().Result);
 
             if (model.Id != authenticatedUser.Id)

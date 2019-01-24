@@ -42,19 +42,6 @@ namespace GatewayAPI.Tests.Tests.Controllers
         }
 
         [Test]
-        public void Authorize_Attribute_Exists()
-        {
-            // Arrange:
-            Type type = _Controller.GetType();
-
-            // Act:
-            var attributes = type.GetCustomAttributes(typeof(AuthorizeAttribute), true);
-
-            // Assert:
-            Assert.IsTrue(attributes.Any());
-        }
-
-        [Test]
         public void GetCollection_ReturnsBadRequest_OnNullParameter()
         {
             // Arrange:
@@ -424,7 +411,6 @@ namespace GatewayAPI.Tests.Tests.Controllers
                 sub = identity.Claims.Where(c => c.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier").FirstOrDefault().Value;
             }
 
-            // create two dummy test users too!
             DummyUsers = new List<User>()
             {
                 new User()
